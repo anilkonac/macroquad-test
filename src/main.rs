@@ -2,8 +2,8 @@ use macroquad::prelude::*;
 
 #[macroquad::main("SimpleGame")]
 async fn main() {
-    const ACCELERATION: f32 = 5.0;
-    const MAX_VELOCITY: f32 = 10.0;
+    const ACCELERATION: f32 = 100.0;
+    const MAX_VELOCITY: f32 = 200.0;
 
     let mut speed = Vec2::ZERO;
     let mut pos = vec2(screen_width() / 2.0, screen_height() / 2.0);
@@ -26,14 +26,20 @@ async fn main() {
             direction.y += 1.0;
         }
 
+        let dt: f32 = get_frame_time();
         if direction != Vec2::ZERO {
             direction = direction.normalize();
-            speed += direction * ACCELERATION * get_frame_time();
+            speed += direction * ACCELERATION * dt;
             speed = speed.clamp_length_max(MAX_VELOCITY);
         }
-        pos += speed;
+        pos += speed * dt;
 
         draw_circle(pos.x, pos.y, 15.0, YELLOW);
+        let speed_text = "Speed: ".to_string() + &speed.to_string();
+        draw_text(&speed_text, 0.0, 16.0, 30.0, BLACK);
+
+        // let fps_text = String::from("FPS: ") + &get_fps().to_string();
+        // draw_text(&fps_text, screen_width() - 120.0, 16.0, 30.0, BLACK);
 
         next_frame().await
     }
