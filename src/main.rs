@@ -11,20 +11,22 @@ async fn main() {
     loop {
         clear_background(RED);
 
-        let dt = get_frame_time();
-
+        // Handle input
         let direction = get_input_direction();
+
+        // Update speed and position
+        let dt = get_frame_time();
         if direction != Vec2::ZERO {
             let direction = direction.normalize();
             speed += direction * ACCELERATION * dt;
             speed = speed.clamp_length_max(MAX_VELOCITY);
         }
-
         pos += speed * dt;
 
+        // Draw
         draw_circle(pos.x, pos.y, 15.0, YELLOW);
-        print_text_speed(&speed);
-        // print_text_fps();
+        draw_text_speed(&speed);
+        // draw_text_fps();
 
         next_frame().await
     }
@@ -49,12 +51,12 @@ fn get_input_direction() -> Vec2 {
     direction
 }
 
-fn print_text_speed(speed: &Vec2) {
+fn draw_text_speed(speed: &Vec2) {
     let speed_text = "Speed: ".to_string() + &speed.to_string();
     draw_text(&speed_text, 0.0, 16.0, 30.0, BLACK);
 }
 
-fn print_text_fps() {
+fn draw_text_fps() {
     let fps_text = String::from("FPS: ") + &get_fps().to_string();
     draw_text(&fps_text, screen_width() - 120.0, 16.0, 30.0, BLACK);
 }
