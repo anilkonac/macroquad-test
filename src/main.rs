@@ -10,7 +10,7 @@ async fn main() {
     let mut direction = Vec2::ZERO;
 
     loop {
-        clear_background(RED);
+        clear_background(BLACK);
 
         // Handle input
         get_input_direction(&mut direction);
@@ -24,7 +24,7 @@ async fn main() {
         pos += speed * dt;
 
         // Draw
-        draw_circle(pos.x, pos.y, 15.0, YELLOW);
+        draw_player(&pos);
         draw_text_speed(&speed);
         // draw_text_fps();
 
@@ -49,12 +49,22 @@ fn get_input_direction(direction: &mut Vec2) {
     }
 }
 
+fn draw_player(pos: &Vec2) {
+    static RADIUS: f32 = 20.0;
+    static R_COS30: f32 = RADIUS * 0.86602540378;
+    static R_SIN30: f32 = RADIUS * 0.5;
+    let v1 = vec2(pos.x, pos.y - RADIUS);
+    let v2 = vec2(pos.x - R_COS30, pos.y + R_SIN30);
+    let v3 = vec2(pos.x + R_COS30, pos.y + R_SIN30);
+    draw_triangle_lines(v1, v2, v3, 2.0, WHITE);
+}
+
 fn draw_text_speed(speed: &Vec2) {
     let speed_text = "Speed: ".to_string() + &speed.to_string();
-    draw_text(&speed_text, 0.0, 16.0, 30.0, BLACK);
+    draw_text(&speed_text, 0.0, 16.0, 30.0, GRAY);
 }
 
 fn draw_text_fps() {
     let fps_text = String::from("FPS: ") + &get_fps().to_string();
-    draw_text(&fps_text, screen_width() - 120.0, 16.0, 30.0, BLACK);
+    draw_text(&fps_text, screen_width() - 120.0, 16.0, 30.0, GRAY);
 }
