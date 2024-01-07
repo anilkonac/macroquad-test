@@ -7,18 +7,18 @@ async fn main() {
 
     let mut speed = Vec2::ZERO;
     let mut pos = vec2(screen_width() / 2.0, screen_height() / 2.0);
+    let mut direction = Vec2::ZERO;
 
     loop {
         clear_background(RED);
 
         // Handle input
-        let direction = get_input_direction();
+        get_input_direction(&mut direction);
 
         // Update speed and position
         let dt = get_frame_time();
         if direction != Vec2::ZERO {
-            let direction = direction.normalize();
-            speed += direction * ACCELERATION * dt;
+            speed += direction.normalize() * ACCELERATION * dt;
             speed = speed.clamp_length_max(MAX_VELOCITY);
         }
         pos += speed * dt;
@@ -32,8 +32,8 @@ async fn main() {
     }
 }
 
-fn get_input_direction() -> Vec2 {
-    let mut direction = Vec2::ZERO;
+fn get_input_direction(direction: &mut Vec2) {
+    *direction = Vec2::ZERO;
 
     if is_key_down(KeyCode::Right) || is_key_down(KeyCode::D) {
         direction.x += 1.0;
@@ -47,8 +47,6 @@ fn get_input_direction() -> Vec2 {
     if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
         direction.y += 1.0;
     }
-
-    direction
 }
 
 fn draw_text_speed(speed: &Vec2) {
