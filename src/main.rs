@@ -58,13 +58,7 @@ fn draw_player(pos: Vec2, rot: f32) {
     static V2: Vec2 = vec2(-R_COS30, R_SIN30);
     static V3: Vec2 = vec2(R_COS30, R_SIN30);
 
-    let rot_rad = rot.to_radians();
-    let rot_rad_cos = rot_rad.cos();
-    let rot_rad_sin = rot_rad.sin();
-    let rotation_matrix = mat2(
-        vec2(rot_rad_cos, rot_rad_sin),
-        vec2(-rot_rad_sin, rot_rad_cos),
-    );
+    let rotation_matrix = Mat2::from_angle(rot.to_radians());
 
     let v1 = rotation_matrix.mul_vec2(V1) + pos;
     let v2 = rotation_matrix.mul_vec2(V2) + pos;
