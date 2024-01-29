@@ -3,12 +3,20 @@ use std::f32::consts::FRAC_PI_2;
 use macroquad::prelude::*;
 use macroquad_test::draw_player;
 
+#[derive(Default, Clone)]
+struct Laser {
+    position: Vec2,
+    rotation: f32,
+    active: bool,
+}
+
 #[macroquad::main("SimpleGame")]
 async fn main() {
     const ACCELERATION: f32 = 100.0;
     const ACCELERATION_ANGULAR: f32 = 100.0;
     const MAX_VELOCITY: f32 = 200.0;
     const MAX_VELOCITY_ANGULAR: f32 = 200.0;
+    const LASER_SPEED: f32 = 20.0;
 
     let mut speed = Vec2::ZERO;
     let mut speed_angular = 0.0;
@@ -16,11 +24,22 @@ async fn main() {
     let mut input_direction = Vec2::ZERO;
     let mut rotation = 0.0;
 
+    let mut laser_pool = vec![Laser::default(); 20];
+    let mut num_active_laser: u8 = 0;
+
     loop {
         clear_background(BLACK);
 
         // Handle input
         get_input_direction(&mut input_direction);
+        if (is_key_down(KeyCode::Space)) {
+            let laser = laser_pool.get_mut(num_active_laser as usize).unwrap();
+            laser.active = true;
+            laser.position = position;
+            laser.rotation = rotation;
+            num_active_laser += 1;
+            num_active_laser = num_active_laser.clamp(0, 19);
+        }
 
         // Update speed and position
         let dt = get_frame_time();
@@ -34,11 +53,20 @@ async fn main() {
         position += speed * dt;
         rotation += speed_angular * dt;
 
+        // update lasers
+        for laser in laser_pool.iter_mut() {
+            if !laser.active {
+                continue;
+            }
+            laser.position += LASER_SPEED * dt;
+        }
+
         // Draw
 
         draw_player(position, rotation, input_direction);
         // draw_text_speed(&speed);
         draw_text_fps();
+        draw_lasers(&laser_pool);
 
         next_frame().await
     }
@@ -58,6 +86,13 @@ fn get_input_direction(direction: &mut Vec2) {
     }
     if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
         direction.x -= 1.0;
+    }
+}
+
+fn draw_lasers(laser_pool: &Vec<Laser>) {
+    for laser in laser_pool.iter() {
+        let pos = &laser.position;
+        draw_line(pos.x, pos.y - 2.0, pos.x, pos.y + 2.0, 2.0, RED)
     }
 }
 

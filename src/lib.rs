@@ -18,10 +18,11 @@ pub fn draw_player(pos: Vec2, rot: f32, input_dir: Vec2) {
         draw_line_with_rotation(&rotation_matrix, pos, V_THROTTLE_1, V_THROTTLE_2, 6.0, RED);
     } else if input_dir.x < 0.0 {
         static SQRT_3: f32 = 1.73205080757;
-        static V_THROTTLE_BACK_1: Vec2 = vec2((RADIUS / 4.0) * SQRT_3, -RADIUS / 4.0);
-        static V_THROTTLE_BACK_2: Vec2 = vec2((RADIUS / 4.0) * SQRT_3, -(RADIUS / 4.0) - 6.0);
-        static V_THROTTLE_BACK_3: Vec2 = vec2(-(RADIUS / 4.0) * SQRT_3, -RADIUS / 4.0);
-        static V_THROTTLE_BACK_4: Vec2 = vec2(-(RADIUS / 4.0) * SQRT_3, -(RADIUS / 4.0) - 6.0);
+        static FRAC_RADIUS_4: f32 = RADIUS / 4.0;
+        static V_THROTTLE_BACK_1: Vec2 = vec2(FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4);
+        static V_THROTTLE_BACK_2: Vec2 = vec2(FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4 - 6.0);
+        static V_THROTTLE_BACK_3: Vec2 = vec2(-FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4);
+        static V_THROTTLE_BACK_4: Vec2 = vec2(-FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4 - 6.0);
 
         draw_line_with_rotation(
             &rotation_matrix,
