@@ -1,6 +1,7 @@
-use std::f32::consts::{FRAC_PI_2, PI};
+use std::f32::consts::FRAC_PI_2;
 
 use macroquad::prelude::*;
+use macroquad_test::draw_player;
 
 #[macroquad::main("SimpleGame")]
 async fn main() {
@@ -34,9 +35,10 @@ async fn main() {
         rotation += speed_angular * dt;
 
         // Draw
-        draw_player(position, rotation);
+
+        draw_player(position, rotation, input_direction);
         // draw_text_speed(&speed);
-        // draw_text_fps();
+        draw_text_fps();
 
         next_frame().await
     }
@@ -57,22 +59,6 @@ fn get_input_direction(direction: &mut Vec2) {
     if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
         direction.x -= 1.0;
     }
-}
-
-fn draw_player(pos: Vec2, rot: f32) {
-    static RADIUS: f32 = 20.0;
-    static R_COS30: f32 = RADIUS * 0.86602540378;
-    static R_SIN30: f32 = RADIUS * 0.5;
-    static V1: Vec2 = vec2(0.0, -RADIUS);
-    static V2: Vec2 = vec2(-R_COS30, R_SIN30);
-    static V3: Vec2 = vec2(R_COS30, R_SIN30);
-
-    let rotation_matrix = Mat2::from_angle(rot.to_radians());
-
-    let v1 = rotation_matrix.mul_vec2(V1) + pos;
-    let v2 = rotation_matrix.mul_vec2(V2) + pos;
-    let v3 = rotation_matrix.mul_vec2(V3) + pos;
-    draw_triangle_lines(v1, v2, v3, 2.0, WHITE);
 }
 
 fn draw_text_speed(speed: &Vec2) {
