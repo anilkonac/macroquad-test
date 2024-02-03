@@ -3,7 +3,7 @@ use std::f32::consts::FRAC_PI_2;
 use macroquad::prelude::*;
 use macroquad_test::draw_player;
 
-#[macroquad::main("SimpleGame")]
+#[macroquad::main("TheGame")]
 async fn main() {
     const ACCELERATION: f32 = 100.0;
     const ACCELERATION_ANGULAR: f32 = 100.0;
