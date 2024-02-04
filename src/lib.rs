@@ -1,84 +1,66 @@
 use macroquad::prelude::*;
 
+const SQRT_3: f32 = 1.73205080757;
+
+const SHIP_RADIUS: f32 = 20.0;
+const FRAC_RADIUS_4: f32 = SHIP_RADIUS / 4.0;
+const SR_COS30: f32 = SHIP_RADIUS * 0.86602540378;
+const SR_SIN30: f32 = SHIP_RADIUS * 0.5;
+
+const V_SHIP_TOP: Vec2 = vec2(0.0, -SHIP_RADIUS);
+const V_SHIP_LEFT: Vec2 = vec2(-SR_COS30, SR_SIN30);
+const V_SHIP_RIGHT: Vec2 = vec2(SR_COS30, SR_SIN30);
+const V_FIRE_TOP: Vec2 = vec2(0.0, SR_SIN30);
+const V_FIRE_BTM: Vec2 = vec2(0.0, SR_SIN30 + 9.0);
+
+const V_FIRE_R_R_1: Vec2 = vec2(FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4);
+const V_FIRE_R_R_2: Vec2 = vec2(FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4 - 6.0);
+const V_FIRE_R_L_1: Vec2 = vec2(-V_FIRE_R_R_1.x, V_FIRE_R_R_1.y);
+const V_FIRE_R_L_2: Vec2 = vec2(-V_FIRE_R_R_2.x, V_FIRE_R_R_2.y);
+
+const V_FIRE_RADIAL_TOP: Vec2 = vec2(0.0, -SHIP_RADIUS);
+const V_FIRE_RADIAL_LEFT: Vec2 = vec2(-6.0, -SHIP_RADIUS);
+const V_FIRE_RADIAL_RIGHT: Vec2 = vec2(6.0, -SHIP_RADIUS);
+
+const COLOR_SHIP: Color = WHITE;
+const COLOR_THRUST: Color = BLUE;
+
 pub fn draw_player(pos: Vec2, rot: f32, input_dir: Vec2) {
-    static RADIUS: f32 = 20.0;
-    static R_COS30: f32 = RADIUS * 0.86602540378;
-    static R_SIN30: f32 = RADIUS * 0.5;
-
-    // static V_THROTTLE_BACK_1: Vec2 = vec2()
-
     let rot_rad = rot.to_radians();
-    let rotation_matrix = Mat2::from_angle(rot_rad);
+    let rot_mat = Mat2::from_angle(rot_rad);
 
-    // Draw engine impulse
+    // Draw the thrust of the engine
     if input_dir.x > 0.0 {
-        static V_THROTTLE_1: Vec2 = vec2(0.0, R_SIN30);
-        static V_THROTTLE_2: Vec2 = vec2(0.0, R_SIN30 + 10.0);
-
-        draw_line_with_rotation(&rotation_matrix, pos, V_THROTTLE_1, V_THROTTLE_2, 6.0, RED);
+        // Forward thrust
+        draw_line_w_rot(&rot_mat, pos, V_FIRE_TOP, V_FIRE_BTM, 6.0, COLOR_THRUST);
     } else if input_dir.x < 0.0 {
-        static SQRT_3: f32 = 1.73205080757;
-        static FRAC_RADIUS_4: f32 = RADIUS / 4.0;
-        static V_THROTTLE_BACK_1: Vec2 = vec2(FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4);
-        static V_THROTTLE_BACK_2: Vec2 = vec2(FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4 - 6.0);
-        static V_THROTTLE_BACK_3: Vec2 = vec2(-FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4);
-        static V_THROTTLE_BACK_4: Vec2 = vec2(-FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4 - 6.0);
-
-        draw_line_with_rotation(
-            &rotation_matrix,
-            pos,
-            V_THROTTLE_BACK_1,
-            V_THROTTLE_BACK_2,
-            3.0,
-            RED,
-        );
-        draw_line_with_rotation(
-            &rotation_matrix,
-            pos,
-            V_THROTTLE_BACK_3,
-            V_THROTTLE_BACK_4,
-            3.0,
-            RED,
-        );
+        // Backward thrust
+        draw_line_w_rot(&rot_mat, pos, V_FIRE_R_R_1, V_FIRE_R_R_2, 3.0, COLOR_THRUST);
+        draw_line_w_rot(&rot_mat, pos, V_FIRE_R_L_1, V_FIRE_R_L_2, 3.0, COLOR_THRUST);
     }
 
+    // Draw radial thrust
     if input_dir.y.abs() > 0.0 {
-        static V_THROTTLE_RADIAL_1: Vec2 = vec2(0.0, -RADIUS);
-        let v_th_r_1 = rotation_matrix.mul_vec2(V_THROTTLE_RADIAL_1) + pos;
-        if input_dir.y > 0.0 {
-            static V_THROTTLE_RADIAL_2: Vec2 = vec2(-6.0, -RADIUS);
-
-            let v_th_r_2 = rotation_matrix.mul_vec2(V_THROTTLE_RADIAL_2) + pos;
-            draw_line(v_th_r_1.x, v_th_r_1.y, v_th_r_2.x, v_th_r_2.y, 2.0, RED);
-        } else if input_dir.y < 0.0 {
-            static V_THROTTLE_RADIAL_3: Vec2 = vec2(6.0, -RADIUS);
-
-            let v_th_r_2 = rotation_matrix.mul_vec2(V_THROTTLE_RADIAL_3) + pos;
-            draw_line(v_th_r_1.x, v_th_r_1.y, v_th_r_2.x, v_th_r_2.y, 2.0, RED);
-        }
+        let v1 = rot_mat.mul_vec2(V_FIRE_RADIAL_TOP) + pos;
+        let v2 = match input_dir.y > 0.0 {
+            true => rot_mat.mul_vec2(V_FIRE_RADIAL_LEFT) + pos,
+            false => rot_mat.mul_vec2(V_FIRE_RADIAL_RIGHT) + pos,
+        };
+        draw_line(v1.x, v1.y, v2.x, v2.y, 2.0, COLOR_THRUST);
     }
 
-    static V1: Vec2 = vec2(0.0, -RADIUS);
-    static V2: Vec2 = vec2(-R_COS30, R_SIN30);
-    static V3: Vec2 = vec2(R_COS30, R_SIN30);
-
-    let v1 = rotation_matrix.mul_vec2(V1) + pos;
-    let v2 = rotation_matrix.mul_vec2(V2) + pos;
-    let v3 = rotation_matrix.mul_vec2(V3) + pos;
-    draw_triangle_lines(v1, v2, v3, 2.0, WHITE);
+    // Draw the ship
+    let v1 = rot_mat.mul_vec2(V_SHIP_TOP) + pos;
+    let v2 = rot_mat.mul_vec2(V_SHIP_LEFT) + pos;
+    let v3 = rot_mat.mul_vec2(V_SHIP_RIGHT) + pos;
+    // draw_triangle_lines(v1, v2, v3, 2.0, COLOR_SHIP);
+    draw_triangle(v1, v2, v3, COLOR_SHIP);
     // draw_poly_lines(pos.x, pos.y, 3, RADIUS, -90.0 + rot, 2.0, WHITE);
 }
 
-fn draw_line_with_rotation(
-    rot_mat: &Mat2,
-    pos: Vec2,
-    v1: Vec2,
-    v2: Vec2,
-    thickness: f32,
-    color: Color,
-) {
+#[inline]
+fn draw_line_w_rot(rot_mat: &Mat2, pos: Vec2, v1: Vec2, v2: Vec2, thickness: f32, color: Color) {
     let v_11 = rot_mat.mul_vec2(v1) + pos;
     let v_22 = rot_mat.mul_vec2(v2) + pos;
-
     draw_line(v_11.x, v_11.y, v_22.x, v_22.y, thickness, color);
 }

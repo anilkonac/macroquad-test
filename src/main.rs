@@ -10,7 +10,7 @@ struct Laser {
     active: bool,
 }
 
-#[macroquad::main("SimpleGame")]
+#[macroquad::main("TheGame")]
 async fn main() {
     const ACCELERATION: f32 = 100.0;
     const ACCELERATION_ANGULAR: f32 = 100.0;
