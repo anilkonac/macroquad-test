@@ -1,13 +1,35 @@
 use std::f32::consts::FRAC_PI_2;
 
 use macroquad::prelude::*;
-use macroquad_test::draw_player;
+use macroquad_test::{draw_player, SHIP_RADIUS};
+
+const LASER_VELOCITY: f32 = 200.0;
 
 #[derive(Default, Clone)]
 struct Laser {
     position: Vec2,
-    rotation: f32,
+    speed: Vec2,
+    rotation_rad: f32,
     active: bool,
+}
+
+impl Laser {
+    fn draw(&self) {
+        static V1: Vec2 = vec2(0.0, -2.0);
+        static V2: Vec2 = vec2(0.0, 2.0);
+
+        let rot_vec = Vec2::from_angle(self.rotation_rad);
+
+        let v1 = rot_vec.rotate(V1) + self.position;
+        let v2 = rot_vec.rotate(V2) + self.position;
+
+        draw_line(v1.x, v1.y, v2.x, v2.y, 1.0, RED);
+    }
+
+    fn update(&mut self, dt: f32) {
+        let direction = Vec2::from_angle(-FRAC_PI_2 + self.rotation_rad);
+        self.position += self.speed * dt + direction * LASER_VELOCITY * dt;
+    }
 }
 
 #[macroquad::main("TheGame")]
@@ -16,29 +38,33 @@ async fn main() {
     const ACCELERATION_ANGULAR: f32 = 100.0;
     const MAX_VELOCITY: f32 = 200.0;
     const MAX_VELOCITY_ANGULAR: f32 = 200.0;
-    const LASER_SPEED: f32 = 20.0;
 
     let mut speed = Vec2::ZERO;
     let mut speed_angular = 0.0;
     let mut position = vec2(screen_width() / 2.0, screen_height() / 2.0);
     let mut input_direction = Vec2::ZERO;
-    let mut rotation = 0.0;
+    let mut rotation: f32 = 0.0;
 
     let mut laser_pool = vec![Laser::default(); 20];
-    let mut num_active_laser: u8 = 0;
+    let mut index_next_laser: u8 = 0;
 
     loop {
         clear_background(BLACK);
+        let rot_rad = rotation.to_radians();
 
         // Handle input
         get_input_direction(&mut input_direction);
-        if (is_key_down(KeyCode::Space)) {
-            let laser = laser_pool.get_mut(num_active_laser as usize).unwrap();
+        if is_key_pressed(KeyCode::Space) {
+            let laser = laser_pool.get_mut(index_next_laser as usize).unwrap();
             laser.active = true;
-            laser.position = position;
-            laser.rotation = rotation;
-            num_active_laser += 1;
-            num_active_laser = num_active_laser.clamp(0, 19);
+            laser.position = position + Vec2::from_angle(rot_rad).rotate(vec2(0.0, -SHIP_RADIUS));
+            laser.rotation_rad = rot_rad;
+            laser.speed = speed;
+            index_next_laser += 1;
+            // num_active_laser = num_active_laser.clamp(0, 19);
+            if index_next_laser as usize > laser_pool.len() - 1 {
+                index_next_laser = 0;
+            }
         }
 
         // Update speed and position
@@ -58,7 +84,7 @@ async fn main() {
             if !laser.active {
                 continue;
             }
-            laser.position += LASER_SPEED * dt;
+            laser.update(dt);
         }
 
         // Draw
@@ -66,7 +92,13 @@ async fn main() {
         draw_player(position, rotation, input_direction);
         // draw_text_speed(&speed);
         draw_text_fps();
-        draw_lasers(&laser_pool);
+        // Draw lasers
+        for laser in laser_pool.iter() {
+            if !laser.active {
+                continue;
+            }
+            laser.draw();
+        }
 
         next_frame().await
     }
@@ -86,13 +118,6 @@ fn get_input_direction(direction: &mut Vec2) {
     }
     if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
         direction.x -= 1.0;
-    }
-}
-
-fn draw_lasers(laser_pool: &Vec<Laser>) {
-    for laser in laser_pool.iter() {
-        let pos = &laser.position;
-        draw_line(pos.x, pos.y - 2.0, pos.x, pos.y + 2.0, 2.0, RED)
     }
 }
 

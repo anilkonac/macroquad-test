@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 const SQRT_3: f32 = 1.73205080757;
 
-const SHIP_RADIUS: f32 = 20.0;
+pub const SHIP_RADIUS: f32 = 20.0;
 const FRAC_RADIUS_4: f32 = SHIP_RADIUS / 4.0;
 const SR_COS30: f32 = SHIP_RADIUS * 0.86602540378;
 const SR_SIN30: f32 = SHIP_RADIUS * 0.5;
