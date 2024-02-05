@@ -2,7 +2,7 @@ use std::f32::consts::FRAC_PI_2;
 
 use macroquad::prelude::*;
 
-use crate::laser::Laser;
+use crate::laser::laser_pool::LaserPool;
 
 mod laser;
 mod ship;
@@ -20,8 +20,7 @@ async fn main() {
     let mut input_direction = Vec2::ZERO;
     let mut rotation: f32 = 0.0;
 
-    let mut laser_pool = vec![Laser::default(); 20];
-    let mut index_next_laser: u8 = 0;
+    let mut laser_pool = LaserPool::create(20);
 
     loop {
         clear_background(BLACK);
@@ -30,18 +29,11 @@ async fn main() {
         // Handle input
         get_input_direction(&mut input_direction);
         if is_key_pressed(KeyCode::Space) {
-            let laser = laser_pool.get_mut(index_next_laser as usize).unwrap();
-            laser.init(position, rot_rad, speed);
-            index_next_laser += 1;
-            // num_active_laser = num_active_laser.clamp(0, 19);
-            if index_next_laser as usize > laser_pool.len() - 1 {
-                index_next_laser = 0;
-            }
+            laser_pool.activate_next_laser(position, speed, rot_rad);
         }
 
         // Update speed and position
         let dt = get_frame_time();
-        let rot_rad = f32::to_radians(rotation);
         if input_direction != Vec2::ZERO {
             speed_angular += input_direction.y * ACCELERATION_ANGULAR * dt;
             speed_angular = speed_angular.clamp(-MAX_VELOCITY_ANGULAR, MAX_VELOCITY_ANGULAR);
@@ -52,26 +44,14 @@ async fn main() {
         position += speed * dt;
         rotation += speed_angular * dt;
 
-        // update lasers
-        for laser in laser_pool.iter_mut() {
-            if !laser.active {
-                continue;
-            }
-            laser.update(dt);
-        }
+        laser_pool.update(dt);
 
         // Draw
-
         ship::draw_ship(position, rot_rad, input_direction);
+        laser_pool.draw();
+
         // draw_text_speed(&speed);
         draw_text_fps();
-        // Draw lasers
-        for laser in laser_pool.iter() {
-            if !laser.active {
-                continue;
-            }
-            laser.draw();
-        }
 
         next_frame().await
     }
