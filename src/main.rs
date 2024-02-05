@@ -24,10 +24,11 @@ async fn main() {
 
         // Update speed and position
         let dt = get_frame_time();
+        let rot_rad = f32::to_radians(rotation);
         if input_direction != Vec2::ZERO {
             speed_angular += input_direction.y * ACCELERATION_ANGULAR * dt;
             speed_angular = speed_angular.clamp(-MAX_VELOCITY_ANGULAR, MAX_VELOCITY_ANGULAR);
-            let direction = Vec2::from_angle(-FRAC_PI_2 + f32::to_radians(rotation));
+            let direction = Vec2::from_angle(-FRAC_PI_2 + rot_rad);
             speed += direction * input_direction.x * ACCELERATION * dt;
             speed = speed.clamp_length_max(MAX_VELOCITY);
         }
@@ -36,7 +37,7 @@ async fn main() {
 
         // Draw
 
-        draw_player(position, rotation, input_direction);
+        draw_player(position, rot_rad, input_direction);
         // draw_text_speed(&speed);
         draw_text_fps();
 
