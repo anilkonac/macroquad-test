@@ -1,7 +1,8 @@
 use std::f32::consts::FRAC_PI_2;
 
 use macroquad::prelude::*;
-use macroquad_test::draw_player;
+
+mod ship;
 
 #[macroquad::main("TheGame")]
 async fn main() {
@@ -37,7 +38,7 @@ async fn main() {
 
         // Draw
 
-        draw_player(position, rot_rad, input_direction);
+        ship::draw_ship(position, rot_rad, input_direction);
         // draw_text_speed(&speed);
         draw_text_fps();
 
