@@ -2,7 +2,7 @@ use std::f32::consts::FRAC_PI_2;
 
 use macroquad::prelude::*;
 
-use crate::{laser::Laser, ship::SHIP_RADIUS};
+use crate::laser::Laser;
 
 mod laser;
 mod ship;
@@ -31,10 +31,7 @@ async fn main() {
         get_input_direction(&mut input_direction);
         if is_key_pressed(KeyCode::Space) {
             let laser = laser_pool.get_mut(index_next_laser as usize).unwrap();
-            laser.active = true;
-            laser.position = position + Vec2::from_angle(rot_rad).rotate(vec2(0.0, -SHIP_RADIUS));
-            laser.rotation_rad = rot_rad;
-            laser.speed = speed;
+            laser.init(position, rot_rad, speed);
             index_next_laser += 1;
             // num_active_laser = num_active_laser.clamp(0, 19);
             if index_next_laser as usize > laser_pool.len() - 1 {
