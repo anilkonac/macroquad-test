@@ -1,7 +1,10 @@
 use std::f32::consts::FRAC_PI_2;
 
 use macroquad::prelude::*;
-use macroquad_test::{draw_player, SHIP_RADIUS};
+
+use crate::ship::SHIP_RADIUS;
+
+mod ship;
 
 const LASER_VELOCITY: f32 = 200.0;
 
@@ -69,10 +72,11 @@ async fn main() {
 
         // Update speed and position
         let dt = get_frame_time();
+        let rot_rad = f32::to_radians(rotation);
         if input_direction != Vec2::ZERO {
             speed_angular += input_direction.y * ACCELERATION_ANGULAR * dt;
             speed_angular = speed_angular.clamp(-MAX_VELOCITY_ANGULAR, MAX_VELOCITY_ANGULAR);
-            let direction = Vec2::from_angle(-FRAC_PI_2 + f32::to_radians(rotation));
+            let direction = Vec2::from_angle(-FRAC_PI_2 + rot_rad);
             speed += direction * input_direction.x * ACCELERATION * dt;
             speed = speed.clamp_length_max(MAX_VELOCITY);
         }
@@ -89,7 +93,7 @@ async fn main() {
 
         // Draw
 
-        draw_player(position, rotation, input_direction);
+        ship::draw_ship(position, rot_rad, input_direction);
         // draw_text_speed(&speed);
         draw_text_fps();
         // Draw lasers
