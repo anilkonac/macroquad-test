@@ -2,7 +2,7 @@ use std::f32::consts::FRAC_PI_2;
 
 use macroquad::prelude::*;
 
-use crate::laser::laser_pool::LaserPool;
+use crate::laser::LaserPool;
 
 mod laser;
 mod ship;

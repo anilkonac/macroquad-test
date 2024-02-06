@@ -1,6 +1,30 @@
-use macroquad::prelude::*;
+use std::f32::consts::FRAC_PI_2;
 
-use super::laser::Laser;
+use macroquad::prelude::*;
+use macroquad_test::draw_line_w_rot;
+
+use crate::ship::SHIP_RADIUS;
+
+const LASER_VELOCITY: f32 = 300.0;
+const V_LAS_1: Vec2 = vec2(-2.0, 0.0);
+const V_LAS_2: Vec2 = vec2(2.0, 0.0);
+
+#[derive(Default, Clone)]
+struct Laser {
+    position: Vec2,
+    speed: Vec2,
+    direction: Vec2,
+    active: bool,
+}
+
+impl Laser {
+    fn init(&mut self, ship_pos: Vec2, ship_rot_rad: f32, ship_speed: Vec2) {
+        self.active = true;
+        self.position = ship_pos + Vec2::from_angle(ship_rot_rad).rotate(vec2(0.0, -SHIP_RADIUS));
+        self.direction = Vec2::from_angle(-FRAC_PI_2 + ship_rot_rad);
+        self.speed = ship_speed + self.direction * LASER_VELOCITY;
+    }
+}
 
 pub struct LaserPool {
     lasers: Vec<Laser>,
@@ -29,7 +53,7 @@ impl LaserPool {
             if !laser.active {
                 return;
             }
-            laser.update(dt);
+            laser.position += laser.speed * dt;
         }
     }
 
@@ -38,7 +62,7 @@ impl LaserPool {
             if !laser.active {
                 return;
             }
-            laser.draw();
+            draw_line_w_rot(laser.direction, laser.position, V_LAS_1, V_LAS_2, 1.0, RED)
         }
     }
 }
