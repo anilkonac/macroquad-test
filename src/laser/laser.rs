@@ -5,7 +5,7 @@ use macroquad_test::draw_line_w_rot;
 
 use crate::ship::SHIP_RADIUS;
 
-const LASER_VELOCITY: f32 = 200.0;
+const LASER_VELOCITY: f32 = 300.0;
 const V_LAS_1: Vec2 = vec2(-2.0, 0.0);
 const V_LAS_2: Vec2 = vec2(2.0, 0.0);
 
@@ -22,12 +22,12 @@ impl Laser {
         self.active = true;
         self.position = ship_pos + Vec2::from_angle(ship_rot_rad).rotate(vec2(0.0, -SHIP_RADIUS));
         self.direction = Vec2::from_angle(-FRAC_PI_2 + ship_rot_rad);
-        self.speed = ship_speed;
+        self.speed = ship_speed + self.direction * LASER_VELOCITY;
     }
 
     #[inline]
     pub fn update(&mut self, dt: f32) {
-        self.position += (self.speed + self.direction * LASER_VELOCITY) * dt;
+        self.position += self.speed * dt;
     }
 
     #[inline]
