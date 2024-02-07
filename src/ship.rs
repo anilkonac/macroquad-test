@@ -1,11 +1,14 @@
+use std::f32::consts::{FRAC_PI_2, PI};
+
 use macroquad::prelude::*;
 use macroquad_test::draw_line_w_rot;
 
-const SQRT_3: f32 = 1.73205080757;
+const SQRT_3: f32 = 1.73205080757f32;
+const DEG_TO_RAD: f32 = PI / 180.0f32;
 
-pub(crate) const SHIP_RADIUS: f32 = 20.0;
+pub const SHIP_RADIUS: f32 = 20.0;
 const FRAC_RADIUS_4: f32 = SHIP_RADIUS / 4.0;
-const SR_COS30: f32 = SHIP_RADIUS * 0.86602540378;
+const SR_COS30: f32 = SHIP_RADIUS * 0.86602540378f32;
 const SR_SIN30: f32 = SHIP_RADIUS * 0.5;
 
 const V_SHIP_TOP: Vec2 = vec2(0.0, -SHIP_RADIUS);
@@ -24,36 +27,77 @@ const V_FIRE_RADIAL_LEFT: Vec2 = vec2(-6.0, -SHIP_RADIUS);
 const V_FIRE_RADIAL_RIGHT: Vec2 = vec2(6.0, -SHIP_RADIUS);
 
 const COLOR_SHIP: Color = WHITE;
-const COLOR_THRUST: Color = BLUE;
+const CLR_THR: Color = BLUE;
 
-pub fn draw_ship(pos: Vec2, rot_rad: f32, input_dir: Vec2) {
-    let rot_vec = Vec2::from_angle(rot_rad);
+const ACCELERATION: f32 = 100.0;
+const ACCELERATION_ANGULAR: f32 = 100.0;
+const ACCELERATION_ANGULAR_RAD: f32 = ACCELERATION_ANGULAR * DEG_TO_RAD;
+const MAX_VELOCITY: f32 = 200.0;
+const MAX_VELOCITY_ANGULAR: f32 = 200.0;
+const MAX_VELOCITY_ANGULAR_RAD: f32 = MAX_VELOCITY_ANGULAR * DEG_TO_RAD;
 
-    // Draw the thrust of the engine
-    if input_dir.x > 0.0 {
-        // Forward thrust
-        draw_line_w_rot(rot_vec, pos, V_FIRE_TOP, V_FIRE_BTM, 6.0, COLOR_THRUST);
-    } else if input_dir.x < 0.0 {
-        // Backward thrust
-        draw_line_w_rot(rot_vec, pos, V_FIRE_R_R_1, V_FIRE_R_R_2, 3.0, COLOR_THRUST);
-        draw_line_w_rot(rot_vec, pos, V_FIRE_R_L_1, V_FIRE_R_L_2, 3.0, COLOR_THRUST);
+pub struct Ship {
+    pub pos: Vec2,
+    pub speed: Vec2,
+    pub rotation_rad: f32,
+    speed_angular: f32,
+}
+
+impl Default for Ship {
+    fn default() -> Self {
+        Self {
+            pos: vec2(screen_width() / 2.0, screen_height() / 2.0),
+            speed: Vec2::ZERO,
+            rotation_rad: 0.0,
+            speed_angular: 0.0,
+        }
+    }
+}
+
+impl Ship {
+    pub fn update(&mut self, input_direction: Vec2, dt: f32) {
+        if input_direction != Vec2::ZERO {
+            self.speed_angular += input_direction.y * ACCELERATION_ANGULAR_RAD * dt;
+            self.speed_angular = self
+                .speed_angular
+                .clamp(-MAX_VELOCITY_ANGULAR_RAD, MAX_VELOCITY_ANGULAR_RAD);
+            let direction = Vec2::from_angle(-FRAC_PI_2 + self.rotation_rad);
+            self.speed += direction * input_direction.x * ACCELERATION * dt;
+            self.speed = self.speed.clamp_length_max(MAX_VELOCITY);
+        }
+        self.pos += self.speed * dt;
+        self.rotation_rad += self.speed_angular * dt;
     }
 
-    // Draw radial thrust
-    if input_dir.y.abs() > 0.0 {
-        let v1 = rot_vec.rotate(V_FIRE_RADIAL_TOP) + pos;
-        let v2 = match input_dir.y > 0.0 {
-            true => rot_vec.rotate(V_FIRE_RADIAL_LEFT) + pos,
-            false => rot_vec.rotate(V_FIRE_RADIAL_RIGHT) + pos,
-        };
-        draw_line(v1.x, v1.y, v2.x, v2.y, 2.0, COLOR_THRUST);
-    }
+    pub fn draw(&self, input_dir: Vec2) {
+        let rot_vec = Vec2::from_angle(self.rotation_rad);
 
-    // Draw the ship
-    let v1 = rot_vec.rotate(V_SHIP_TOP) + pos;
-    let v2 = rot_vec.rotate(V_SHIP_LEFT) + pos;
-    let v3 = rot_vec.rotate(V_SHIP_RIGHT) + pos;
-    // draw_triangle_lines(v1, v2, v3, 2.0, COLOR_SHIP);
-    draw_triangle(v1, v2, v3, COLOR_SHIP);
-    // draw_poly_lines(pos.x, pos.y, 3, RADIUS, -90.0 + rot, 2.0, WHITE);
+        // Draw the thrust of the engine
+        if input_dir.x > 0.0 {
+            // Forward thrust
+            draw_line_w_rot(rot_vec, self.pos, V_FIRE_TOP, V_FIRE_BTM, 6.0, CLR_THR);
+        } else if input_dir.x < 0.0 {
+            // Backward thrust
+            draw_line_w_rot(rot_vec, self.pos, V_FIRE_R_R_1, V_FIRE_R_R_2, 3.0, CLR_THR);
+            draw_line_w_rot(rot_vec, self.pos, V_FIRE_R_L_1, V_FIRE_R_L_2, 3.0, CLR_THR);
+        }
+
+        // Draw radial thrust
+        if input_dir.y.abs() > 0.0 {
+            let v1 = rot_vec.rotate(V_FIRE_RADIAL_TOP) + self.pos;
+            let v2 = match input_dir.y > 0.0 {
+                true => rot_vec.rotate(V_FIRE_RADIAL_LEFT) + self.pos,
+                false => rot_vec.rotate(V_FIRE_RADIAL_RIGHT) + self.pos,
+            };
+            draw_line(v1.x, v1.y, v2.x, v2.y, 2.0, CLR_THR);
+        }
+
+        // Draw the ship
+        let v1 = rot_vec.rotate(V_SHIP_TOP) + self.pos;
+        let v2 = rot_vec.rotate(V_SHIP_LEFT) + self.pos;
+        let v3 = rot_vec.rotate(V_SHIP_RIGHT) + self.pos;
+        // draw_triangle_lines(v1, v2, v3, 2.0, COLOR_SHIP);
+        draw_triangle(v1, v2, v3, COLOR_SHIP);
+        // draw_poly_lines(self.position.x, self.position.y, 3, RADIUS, -90.0 + rot, 2.0, WHITE);
+    }
 }
