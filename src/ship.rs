@@ -1,24 +1,22 @@
-use std::f32::consts::{FRAC_PI_2, PI};
+use std::f32::consts::FRAC_PI_2;
 
 use macroquad::prelude::*;
-use macroquad_test::draw_line_w_rot;
+use macroquad_test::{draw_line_w_rot, DEG_TO_RAD, SQRT_3};
 
-const SQRT_3: f32 = 1.73205080757f32;
-const DEG_TO_RAD: f32 = PI / 180.0f32;
+use crate::SHIP_RADIUS;
 
-pub const SHIP_RADIUS: f32 = 20.0;
 const FRAC_RADIUS_4: f32 = SHIP_RADIUS / 4.0;
-const SR_COS30: f32 = SHIP_RADIUS * 0.86602540378f32;
-const SR_SIN30: f32 = SHIP_RADIUS * 0.5;
+const SRADIUS_COS30: f32 = SHIP_RADIUS * 0.86602540378f32;
+const SRADIUS_SIN30: f32 = SHIP_RADIUS * 0.5;
 
 const V_SHIP_TOP: Vec2 = vec2(0.0, -SHIP_RADIUS);
-const V_SHIP_LEFT: Vec2 = vec2(-SR_COS30, SR_SIN30);
-const V_SHIP_RIGHT: Vec2 = vec2(SR_COS30, SR_SIN30);
-const V_FIRE_TOP: Vec2 = vec2(0.0, SR_SIN30);
-const V_FIRE_BTM: Vec2 = vec2(0.0, SR_SIN30 + 9.0);
+const V_SHIP_LEFT: Vec2 = vec2(-SRADIUS_COS30, SRADIUS_SIN30);
+const V_SHIP_RIGHT: Vec2 = vec2(SRADIUS_COS30, SRADIUS_SIN30);
+const V_FIRE_TOP: Vec2 = vec2(0.0, SRADIUS_SIN30);
+const V_FIRE_BTM: Vec2 = vec2(0.0, SRADIUS_SIN30 + 9.0);
 
 const V_FIRE_R_R_1: Vec2 = vec2(FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4);
-const V_FIRE_R_R_2: Vec2 = vec2(FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4 - 6.0);
+const V_FIRE_R_R_2: Vec2 = vec2(V_FIRE_R_R_1.x, V_FIRE_R_R_1.y - 6.0);
 const V_FIRE_R_L_1: Vec2 = vec2(-V_FIRE_R_R_1.x, V_FIRE_R_R_1.y);
 const V_FIRE_R_L_2: Vec2 = vec2(-V_FIRE_R_R_2.x, V_FIRE_R_R_2.y);
 
@@ -26,15 +24,11 @@ const V_FIRE_RADIAL_TOP: Vec2 = vec2(0.0, -SHIP_RADIUS);
 const V_FIRE_RADIAL_LEFT: Vec2 = vec2(-6.0, -SHIP_RADIUS);
 const V_FIRE_RADIAL_RIGHT: Vec2 = vec2(6.0, -SHIP_RADIUS);
 
+const ACCELERATION_ANGULAR_RAD: f32 = crate::SHIP_ACCELERATION_ANGULAR * DEG_TO_RAD;
+const MAX_VELOCITY_ANGULAR_RAD: f32 = crate::SHIP_VELOCITY_ANGULAR_MAX * DEG_TO_RAD;
+
 const COLOR_SHIP: Color = WHITE;
 const CLR_THR: Color = BLUE;
-
-const ACCELERATION: f32 = 100.0;
-const ACCELERATION_ANGULAR: f32 = 100.0;
-const ACCELERATION_ANGULAR_RAD: f32 = ACCELERATION_ANGULAR * DEG_TO_RAD;
-const MAX_VELOCITY: f32 = 200.0;
-const MAX_VELOCITY_ANGULAR: f32 = 200.0;
-const MAX_VELOCITY_ANGULAR_RAD: f32 = MAX_VELOCITY_ANGULAR * DEG_TO_RAD;
 
 pub struct Ship {
     pub pos: Vec2,
@@ -62,8 +56,8 @@ impl Ship {
                 .speed_angular
                 .clamp(-MAX_VELOCITY_ANGULAR_RAD, MAX_VELOCITY_ANGULAR_RAD);
             let direction = Vec2::from_angle(-FRAC_PI_2 + self.rotation_rad);
-            self.speed += direction * input_direction.x * ACCELERATION * dt;
-            self.speed = self.speed.clamp_length_max(MAX_VELOCITY);
+            self.speed += direction * input_direction.x * crate::SHIP_ACCELERATION * dt;
+            self.speed = self.speed.clamp_length_max(crate::SHIP_VELOCITY_MAX);
         }
         self.pos += self.speed * dt;
         self.rotation_rad += self.speed_angular * dt;

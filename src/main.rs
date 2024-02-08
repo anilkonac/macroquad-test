@@ -5,6 +5,14 @@ use crate::{laser::LaserPool, ship::Ship};
 mod laser;
 mod ship;
 
+// Main constants that affect gameplay
+const SHIP_RADIUS: f32 = 20.0;
+const SHIP_ACCELERATION: f32 = 100.0;
+const SHIP_ACCELERATION_ANGULAR: f32 = 100.0;
+const SHIP_VELOCITY_MAX: f32 = 200.0;
+const SHIP_VELOCITY_ANGULAR_MAX: f32 = 200.0;
+const LASER_VELOCITY: f32 = 300.0;
+
 #[macroquad::main("TheGame")]
 async fn main() {
     let mut ship = Ship::default();

@@ -3,14 +3,15 @@ use std::f32::consts::FRAC_PI_2;
 use macroquad::prelude::*;
 use macroquad_test::draw_line_w_rot;
 
-use crate::ship::{Ship, SHIP_RADIUS};
+use crate::{ship::Ship, SHIP_RADIUS};
 
-const LASER_VELOCITY: f32 = 300.0;
 const LASER_THICKNESS: f32 = 2.0;
 const LASER_LENGTH: f32 = 6.0;
 
 const V_LASER_LEFT: Vec2 = vec2(-LASER_LENGTH / 2.0, 0.0);
 const V_LASER_RIGHT: Vec2 = vec2(LASER_LENGTH / 2.0, 0.0);
+
+const COLOR_LASER: Color = RED;
 
 #[derive(Default, Clone)]
 struct Laser {
@@ -26,7 +27,7 @@ impl Laser {
         self.position =
             ship.pos + Vec2::from_angle(ship.rotation_rad).rotate(vec2(0.0, -SHIP_RADIUS));
         self.direction = Vec2::from_angle(-FRAC_PI_2 + ship.rotation_rad);
-        self.speed = ship.speed + self.direction * LASER_VELOCITY;
+        self.speed = ship.speed + self.direction * crate::LASER_VELOCITY;
     }
 }
 
@@ -72,7 +73,7 @@ impl LaserPool {
                 V_LASER_LEFT,
                 V_LASER_RIGHT,
                 LASER_THICKNESS,
-                RED,
+                COLOR_LASER,
             )
         }
     }
