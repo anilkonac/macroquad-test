@@ -24,9 +24,8 @@ struct Laser {
 impl Laser {
     fn init(&mut self, ship: &Ship) {
         self.active = true;
-        self.position =
-            ship.pos + Vec2::from_angle(ship.rotation_rad).rotate(vec2(0.0, -SHIP_RADIUS));
         self.direction = Vec2::from_angle(-FRAC_PI_2 + ship.rotation_rad);
+        self.position = ship.pos + self.direction.rotate(vec2(SHIP_RADIUS, 0.0));
         self.speed = ship.speed + self.direction * crate::LASER_VELOCITY;
     }
 }
