@@ -1,55 +1,41 @@
-use std::f32::consts::FRAC_PI_2;
-
 use macroquad::prelude::*;
 
-use crate::laser::LaserPool;
+use crate::{laser::LaserPool, ship::Ship};
 
 mod laser;
 mod ship;
 
+// Main constants that affect gameplay
+const SHIP_RADIUS: f32 = 20.0;
+const SHIP_ACCELERATION: f32 = 100.0;
+const SHIP_ACCELERATION_ANGULAR: f32 = 100.0;
+const SHIP_VELOCITY_MAX: f32 = 200.0;
+const SHIP_VELOCITY_ANGULAR_MAX: f32 = 200.0;
+const LASER_VELOCITY: f32 = 300.0;
+
 #[macroquad::main("TheGame")]
 async fn main() {
-    const ACCELERATION: f32 = 100.0;
-    const ACCELERATION_ANGULAR: f32 = 100.0;
-    const MAX_VELOCITY: f32 = 200.0;
-    const MAX_VELOCITY_ANGULAR: f32 = 200.0;
-
-    let mut speed = Vec2::ZERO;
-    let mut speed_angular = 0.0;
-    let mut position = vec2(screen_width() / 2.0, screen_height() / 2.0);
-    let mut input_direction = Vec2::ZERO;
-    let mut rotation: f32 = 0.0;
-
+    let mut ship = Ship::default();
     let mut laser_pool = LaserPool::create(20);
+    let mut input_direction = Vec2::ZERO;
 
     loop {
         clear_background(BLACK);
-        let rot_rad = rotation.to_radians();
 
         // Handle input
         get_input_direction(&mut input_direction);
         if is_key_pressed(KeyCode::Space) {
-            laser_pool.activate_next_laser(position, speed, rot_rad);
+            laser_pool.activate_next_laser(&ship);
         }
 
-        // Update speed and position
+        // Update
         let dt = get_frame_time();
-        if input_direction != Vec2::ZERO {
-            speed_angular += input_direction.y * ACCELERATION_ANGULAR * dt;
-            speed_angular = speed_angular.clamp(-MAX_VELOCITY_ANGULAR, MAX_VELOCITY_ANGULAR);
-            let direction = Vec2::from_angle(-FRAC_PI_2 + rot_rad);
-            speed += direction * input_direction.x * ACCELERATION * dt;
-            speed = speed.clamp_length_max(MAX_VELOCITY);
-        }
-        position += speed * dt;
-        rotation += speed_angular * dt;
-
+        ship.update(input_direction, dt);
         laser_pool.update(dt);
 
         // Draw
-        ship::draw_ship(position, rot_rad, input_direction);
+        ship.draw(input_direction);
         laser_pool.draw();
-
         // draw_text_speed(&speed);
         draw_text_fps();
 
@@ -74,11 +60,13 @@ fn get_input_direction(direction: &mut Vec2) {
     }
 }
 
+#[allow(dead_code)]
 fn draw_text_speed(speed: &Vec2) {
     let speed_text = "Speed: ".to_string() + &speed.to_string();
     draw_text(&speed_text, 0.0, 16.0, 30.0, GRAY);
 }
 
+#[allow(dead_code)]
 fn draw_text_fps() {
     let fps_text = String::from("FPS: ") + &get_fps().to_string();
     draw_text(&fps_text, screen_width() - 120.0, 16.0, 30.0, GRAY);
