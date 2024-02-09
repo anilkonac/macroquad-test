@@ -1,7 +1,7 @@
 use std::f32::consts::FRAC_PI_2;
 
 use macroquad::prelude::*;
-use macroquad_test::{draw_line_w_rot, DEG_TO_RAD, SQRT_3};
+use macroquad_test::{draw_line_w_rot, draw_triangle, DEG_TO_RAD, SQRT_3};
 
 use crate::SHIP_RADIUS;
 
@@ -27,7 +27,8 @@ const V_FIRE_RADIAL_RIGHT: Vec2 = vec2(6.0, -SHIP_RADIUS);
 const ACCELERATION_ANGULAR_RAD: f32 = crate::SHIP_ACCELERATION_ANGULAR * DEG_TO_RAD;
 const MAX_VELOCITY_ANGULAR_RAD: f32 = crate::SHIP_VELOCITY_ANGULAR_MAX * DEG_TO_RAD;
 
-const COLOR_SHIP: Color = WHITE;
+// const COLOR_SHIP: Color = WHITE;
+static SHIP_VERTEX_COLORS: [Color; 3] = [PURPLE, WHITE, WHITE];
 const CLR_THR: Color = BLUE;
 
 pub struct Ship {
@@ -91,7 +92,8 @@ impl Ship {
         let v2 = rot_vec.rotate(V_SHIP_LEFT) + self.pos;
         let v3 = rot_vec.rotate(V_SHIP_RIGHT) + self.pos;
         // draw_triangle_lines(v1, v2, v3, 2.0, COLOR_SHIP);
-        draw_triangle(v1, v2, v3, COLOR_SHIP);
+        // draw_triangle(v1, v2, v3, COLOR_SHIP);
+        draw_triangle(v1, v2, v3, &SHIP_VERTEX_COLORS);
         // draw_poly_lines(self.position.x, self.position.y, 3, RADIUS, -90.0 + rot, 2.0, WHITE);
     }
 }
