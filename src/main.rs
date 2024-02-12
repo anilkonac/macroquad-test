@@ -17,6 +17,7 @@ fn window_conf() -> Conf {
     Conf {
         window_title: "TheGame".to_owned(),
         high_dpi: cfg!(target_os = "macos"),
+        sample_count: 4,
         ..Default::default()
     }
 }
