@@ -13,7 +13,16 @@ const SHIP_VELOCITY_MAX: f32 = 200.0;
 const SHIP_VELOCITY_ANGULAR_MAX: f32 = 200.0;
 const LASER_VELOCITY: f32 = 300.0;
 
-#[macroquad::main("TheGame")]
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "TheGame".to_owned(),
+        high_dpi: cfg!(target_os = "macos"),
+        sample_count: 4,
+        ..Default::default()
+    }
+}
+
+#[macroquad::main(window_conf)]
 async fn main() {
     let mut ship = Ship::default();
     let mut laser_pool = LaserPool::create(20);
