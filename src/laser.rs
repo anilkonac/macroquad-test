@@ -18,12 +18,12 @@ struct Laser {
     position: Vec2,
     speed: Vec2,
     direction: Vec2,
-    active: bool,
+    // active: bool,
 }
 
 impl Laser {
     fn init(&mut self, ship: &Ship) {
-        self.active = true;
+        // self.active = true;
         self.direction = Vec2::from_angle(-FRAC_PI_2 + ship.rotation_rad);
         self.position = ship.pos + self.direction.rotate(vec2(SHIP_RADIUS, 0.0));
         self.speed = ship.speed + self.direction * crate::LASER_VELOCITY;
@@ -43,7 +43,7 @@ impl LaserPool {
         }
     }
 
-    pub fn activate_next_laser(&mut self, ship: &Ship) {
+    pub fn fire_laser(&mut self, ship: &Ship) {
         let laser = self.lasers.get_mut(self.index_next_laser).unwrap();
         laser.init(ship);
         self.index_next_laser += 1;
@@ -54,18 +54,18 @@ impl LaserPool {
 
     pub fn update(&mut self, dt: f32) {
         for laser in self.lasers.iter_mut() {
-            if !laser.active {
-                return;
-            }
+            // if !laser.active {
+            //     return;
+            // }
             laser.position += laser.speed * dt;
         }
     }
 
     pub fn draw(&self) {
         for laser in self.lasers.iter() {
-            if !laser.active {
-                return;
-            }
+            // if !laser.active {
+            //     return;
+            // }
             draw_line_w_rot(
                 laser.direction,
                 laser.position,

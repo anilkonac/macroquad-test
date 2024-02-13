@@ -34,7 +34,7 @@ async fn main() {
         // Handle input
         get_input_direction(&mut input_direction);
         if is_key_pressed(KeyCode::Space) {
-            laser_pool.activate_next_laser(&ship);
+            laser_pool.fire_laser(&ship);
         }
 
         // Update
