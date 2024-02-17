@@ -12,7 +12,7 @@ const SHIP_ACCELERATION_ANGULAR: f32 = 100.0;
 const SHIP_VELOCITY_MAX: f32 = 200.0;
 const SHIP_VELOCITY_ANGULAR_MAX: f32 = 200.0;
 const LASER_VELOCITY: f32 = 300.0;
-const FIRE_PERIOD: f64 = 0.3;
+const FIRE_PERIOD: f32 = 0.3;
 
 fn window_conf() -> Conf {
     Conf {
@@ -29,23 +29,26 @@ async fn main() {
     let mut laser_pool = LaserPool::create(20);
     let mut input_direction = Vec2::ZERO;
 
-    let mut last_fire_time = 0.0;
+    let mut laser_accumulator = FIRE_PERIOD;
 
     loop {
         clear_background(BLACK);
 
         // Handle input
+        let dt = get_frame_time();
         get_input_direction(&mut input_direction);
         if is_key_down(KeyCode::Space) {
-            let elapsed_time = get_time();
-            if (elapsed_time - last_fire_time) > FIRE_PERIOD {
+            laser_accumulator += dt;
+            let diff = laser_accumulator - FIRE_PERIOD;
+            if diff > 0.0 {
                 laser_pool.fire_laser(&ship);
-                last_fire_time = elapsed_time;
+                laser_accumulator = diff;
             }
+        } else if is_key_released(KeyCode::Space) {
+            laser_accumulator = FIRE_PERIOD;
         }
 
         // Update
-        let dt = get_frame_time();
         ship.update(input_direction, dt);
         laser_pool.update(dt);
 
