@@ -3,7 +3,7 @@ use std::f32::consts::FRAC_PI_2;
 use macroquad::prelude::*;
 use macroquad_test::draw_line_w_rot;
 
-use crate::{ship::Ship, SHIP_RADIUS};
+use crate::{ship::Ship, LASER_FIRE_KEY, LASER_FIRE_PERIOD, SHIP_RADIUS};
 
 const LASER_THICKNESS: f32 = 2.0;
 const LASER_LENGTH: f32 = 6.0;
@@ -33,6 +33,7 @@ impl Laser {
 pub struct LaserPool {
     lasers: Vec<Laser>,
     index_next_laser: usize,
+    time_accum: f32,
 }
 
 impl LaserPool {
@@ -40,6 +41,20 @@ impl LaserPool {
         Self {
             lasers: vec![Laser::default(); num_laser],
             index_next_laser: 0,
+            time_accum: LASER_FIRE_PERIOD,
+        }
+    }
+
+    pub fn handle_firing(&mut self, ship: &Ship, dt: f32) {
+        if is_key_down(LASER_FIRE_KEY) {
+            self.time_accum += dt;
+            let diff = self.time_accum - LASER_FIRE_PERIOD;
+            if diff > 0.0 {
+                self.fire_laser(&ship);
+                self.time_accum = diff;
+            }
+        } else if is_key_released(LASER_FIRE_KEY) {
+            self.time_accum = LASER_FIRE_PERIOD;
         }
     }
 

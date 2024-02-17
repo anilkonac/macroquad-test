@@ -12,16 +12,8 @@ const SHIP_ACCELERATION_ANGULAR: f32 = 100.0;
 const SHIP_VELOCITY_MAX: f32 = 200.0;
 const SHIP_VELOCITY_ANGULAR_MAX: f32 = 200.0;
 const LASER_VELOCITY: f32 = 300.0;
-const FIRE_PERIOD: f32 = 0.3;
-
-fn window_conf() -> Conf {
-    Conf {
-        window_title: "TheGame".to_owned(),
-        high_dpi: cfg!(target_os = "macos"),
-        sample_count: 4,
-        ..Default::default()
-    }
-}
+const LASER_FIRE_PERIOD: f32 = 0.3;
+const LASER_FIRE_KEY: KeyCode = KeyCode::Space;
 
 #[macroquad::main(window_conf)]
 async fn main() {
@@ -29,36 +21,34 @@ async fn main() {
     let mut laser_pool = LaserPool::create(20);
     let mut input_direction = Vec2::ZERO;
 
-    let mut laser_accumulator = FIRE_PERIOD;
-
     loop {
-        clear_background(BLACK);
+        let dt = get_frame_time();
 
         // Handle input
-        let dt = get_frame_time();
         get_input_direction(&mut input_direction);
-        if is_key_down(KeyCode::Space) {
-            laser_accumulator += dt;
-            let diff = laser_accumulator - FIRE_PERIOD;
-            if diff > 0.0 {
-                laser_pool.fire_laser(&ship);
-                laser_accumulator = diff;
-            }
-        } else if is_key_released(KeyCode::Space) {
-            laser_accumulator = FIRE_PERIOD;
-        }
+        laser_pool.handle_firing(&ship, dt);
 
         // Update
         ship.update(input_direction, dt);
         laser_pool.update(dt);
 
         // Draw
+        clear_background(BLACK);
         ship.draw(input_direction);
         laser_pool.draw();
         // draw_text_speed(&speed);
         draw_text_fps();
 
         next_frame().await
+    }
+}
+
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "TheGame".to_owned(),
+        high_dpi: cfg!(target_os = "macos"),
+        sample_count: 4,
+        ..Default::default()
     }
 }
 
