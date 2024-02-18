@@ -1,3 +1,5 @@
+use std::f32::consts::FRAC_PI_2;
+
 use macroquad::prelude::*;
 
 use crate::{laser::LaserPool, ship::Ship};
@@ -20,13 +22,14 @@ async fn main() {
     let mut ship = Ship::default();
     let mut laser_pool = LaserPool::create(20);
     let mut input_direction = Vec2::ZERO;
+    let mut fire_time_accum = LASER_FIRE_PERIOD;
 
     loop {
         let dt = get_frame_time();
 
         // Handle input
-        get_input_direction(&mut input_direction);
-        laser_pool.handle_firing(&ship, dt);
+        handle_input_direction(&mut input_direction);
+        handle_input_fire(&ship, &mut laser_pool, &mut fire_time_accum, dt);
 
         // Update
         ship.update(input_direction, dt);
@@ -52,7 +55,23 @@ fn window_conf() -> Conf {
     }
 }
 
-fn get_input_direction(direction: &mut Vec2) {
+fn handle_input_fire(ship: &Ship, laser_pool: &mut LaserPool, fire_time_accum: &mut f32, dt: f32) {
+    if is_key_down(LASER_FIRE_KEY) {
+        *fire_time_accum += dt;
+        let diff = *fire_time_accum - LASER_FIRE_PERIOD;
+        if diff > 0.0 {
+            let next_laser = laser_pool.get_next_laser();
+            next_laser.direction = Vec2::from_angle(-FRAC_PI_2 + ship.rotation_rad);
+            next_laser.position = ship.pos + next_laser.direction.rotate(vec2(SHIP_RADIUS, 0.0));
+            next_laser.speed = ship.speed + next_laser.direction * crate::LASER_VELOCITY;
+            *fire_time_accum = diff;
+        }
+    } else if is_key_released(LASER_FIRE_KEY) {
+        *fire_time_accum = LASER_FIRE_PERIOD;
+    }
+}
+
+fn handle_input_direction(direction: &mut Vec2) {
     *direction = Vec2::ZERO;
 
     if is_key_down(KeyCode::Right) || is_key_down(KeyCode::D) {
