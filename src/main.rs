@@ -1,7 +1,4 @@
-use input::{handle_input_direction, handle_input_fire};
-use laser::LaserPool;
 use macroquad::prelude::*;
-use ship::Ship;
 
 mod input;
 mod laser;
@@ -15,12 +12,11 @@ const SHIP_VELOCITY_MAX: f32 = 200.0;
 const SHIP_VELOCITY_ANGULAR_MAX: f32 = 200.0;
 const LASER_VELOCITY: f32 = 300.0;
 const LASER_FIRE_PERIOD: f32 = 0.3;
-const LASER_FIRE_KEY: KeyCode = KeyCode::Space;
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut ship = Ship::default();
-    let mut laser_pool = LaserPool::create(20);
+    let mut ship = ship::Ship::default();
+    let mut laser_pool = laser::LaserPool::create(20);
     let mut input_direction = Vec2::ZERO;
     let mut fire_time_accum = LASER_FIRE_PERIOD;
 
@@ -28,8 +24,8 @@ async fn main() {
         let dt = get_frame_time();
 
         // Handle input
-        handle_input_direction(&mut input_direction);
-        handle_input_fire(&ship, &mut laser_pool, &mut fire_time_accum, dt);
+        input::handle_input_direction(&mut input_direction);
+        input::handle_input_fire(&ship, &mut laser_pool, &mut fire_time_accum, dt);
 
         // Update
         ship.update(input_direction, dt);

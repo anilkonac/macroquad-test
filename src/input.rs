@@ -1,8 +1,8 @@
+use crate::{laser::LaserPool, ship::Ship, LASER_FIRE_PERIOD, SHIP_RADIUS};
+use macroquad::prelude::*;
 use std::f32::consts::FRAC_PI_2;
 
-use macroquad::prelude::*;
-
-use crate::{laser::LaserPool, ship::Ship, LASER_FIRE_KEY, LASER_FIRE_PERIOD, SHIP_RADIUS};
+const LASER_FIRE_KEY: KeyCode = KeyCode::Space;
 
 pub fn handle_input_fire(
     ship: &Ship,
