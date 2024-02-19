@@ -1,7 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::{laser::LaserPool, ship::Ship};
-
+mod input;
 mod laser;
 mod ship;
 
@@ -9,40 +8,31 @@ mod ship;
 const SHIP_RADIUS: f32 = 20.0;
 const SHIP_ACCELERATION: f32 = 100.0;
 const SHIP_ACCELERATION_ANGULAR: f32 = 100.0;
-const SHIP_VELOCITY_MAX: f32 = 200.0;
+const SHIP_VELOCITY_MAX: f32 = 300.0;
 const SHIP_VELOCITY_ANGULAR_MAX: f32 = 200.0;
-const LASER_VELOCITY: f32 = 300.0;
-
-fn window_conf() -> Conf {
-    Conf {
-        window_title: "TheGame".to_owned(),
-        high_dpi: cfg!(target_os = "macos"),
-        sample_count: 4,
-        ..Default::default()
-    }
-}
+const LASER_VELOCITY: f32 = 380.0;
+const LASER_FIRE_PERIOD: f32 = 0.3;
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut ship = Ship::default();
-    let mut laser_pool = LaserPool::create(20);
+    let mut ship = ship::Ship::default();
+    let mut laser_pool = laser::LaserPool::create(20);
     let mut input_direction = Vec2::ZERO;
+    let mut fire_time_accum = LASER_FIRE_PERIOD;
 
     loop {
-        clear_background(BLACK);
+        let dt = get_frame_time();
 
         // Handle input
-        get_input_direction(&mut input_direction);
-        if is_key_pressed(KeyCode::Space) {
-            laser_pool.activate_next_laser(&ship);
-        }
+        input::handle_input_direction(&mut input_direction);
+        input::handle_input_fire(&ship, &mut laser_pool, &mut fire_time_accum, dt);
 
         // Update
-        let dt = get_frame_time();
         ship.update(input_direction, dt);
         laser_pool.update(dt);
 
         // Draw
+        clear_background(BLACK);
         ship.draw(input_direction);
         laser_pool.draw();
         // draw_text_speed(&speed);
@@ -52,20 +42,12 @@ async fn main() {
     }
 }
 
-fn get_input_direction(direction: &mut Vec2) {
-    *direction = Vec2::ZERO;
-
-    if is_key_down(KeyCode::Right) || is_key_down(KeyCode::D) {
-        direction.y += 1.0;
-    }
-    if is_key_down(KeyCode::Left) || is_key_down(KeyCode::A) {
-        direction.y -= 1.0;
-    }
-    if is_key_down(KeyCode::Up) || is_key_down(KeyCode::W) {
-        direction.x = 1.0;
-    }
-    if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
-        direction.x -= 1.0;
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "TheGame".to_owned(),
+        high_dpi: cfg!(target_os = "macos"),
+        sample_count: 4,
+        ..Default::default()
     }
 }
 

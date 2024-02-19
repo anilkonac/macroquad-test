@@ -1,7 +1,6 @@
-use std::f32::consts::FRAC_PI_2;
-
 use macroquad::prelude::*;
 use macroquad_test::{draw_line_w_rot, draw_triangle, DEG_TO_RAD, SQRT_3};
+use std::f32::consts::FRAC_PI_2;
 
 use crate::SHIP_RADIUS;
 

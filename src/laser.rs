@@ -1,9 +1,5 @@
-use std::f32::consts::FRAC_PI_2;
-
 use macroquad::prelude::*;
 use macroquad_test::draw_line_w_rot;
-
-use crate::{ship::Ship, SHIP_RADIUS};
 
 const LASER_THICKNESS: f32 = 2.0;
 const LASER_LENGTH: f32 = 6.0;
@@ -14,20 +10,11 @@ const V_LASER_RIGHT: Vec2 = vec2(LASER_LENGTH / 2.0, 0.0);
 const COLOR_LASER: Color = RED;
 
 #[derive(Default, Clone)]
-struct Laser {
-    position: Vec2,
-    speed: Vec2,
-    direction: Vec2,
-    active: bool,
-}
-
-impl Laser {
-    fn init(&mut self, ship: &Ship) {
-        self.active = true;
-        self.direction = Vec2::from_angle(-FRAC_PI_2 + ship.rotation_rad);
-        self.position = ship.pos + self.direction.rotate(vec2(SHIP_RADIUS, 0.0));
-        self.speed = ship.speed + self.direction * crate::LASER_VELOCITY;
-    }
+pub struct Laser {
+    pub position: Vec2,
+    pub speed: Vec2,
+    pub direction: Vec2,
+    // active: bool,
 }
 
 pub struct LaserPool {
@@ -43,29 +30,30 @@ impl LaserPool {
         }
     }
 
-    pub fn activate_next_laser(&mut self, ship: &Ship) {
+    pub fn get_next_laser(&mut self) -> &mut Laser {
+        let num_lasers = self.lasers.len();
         let laser = self.lasers.get_mut(self.index_next_laser).unwrap();
-        laser.init(ship);
         self.index_next_laser += 1;
-        if self.index_next_laser > self.lasers.len() - 1 {
+        if self.index_next_laser > num_lasers - 1 {
             self.index_next_laser = 0;
         }
+        laser
     }
 
     pub fn update(&mut self, dt: f32) {
         for laser in self.lasers.iter_mut() {
-            if !laser.active {
-                return;
-            }
+            // if !laser.active {
+            //     return;
+            // }
             laser.position += laser.speed * dt;
         }
     }
 
     pub fn draw(&self) {
         for laser in self.lasers.iter() {
-            if !laser.active {
-                return;
-            }
+            // if !laser.active {
+            //     return;
+            // }
             draw_line_w_rot(
                 laser.direction,
                 laser.position,
