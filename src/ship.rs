@@ -1,4 +1,5 @@
 use macroquad::prelude::*;
+use macroquad_particles::{Emitter, EmitterConfig};
 use macroquad_test::{draw_line_w_rot, draw_triangle, DEG_TO_RAD, SQRT_3};
 use std::f32::consts::FRAC_PI_2;
 
@@ -30,6 +31,7 @@ const SHIP_VERTEX_COLORS: [Color; 3] = [PURPLE, WHITE, WHITE];
 const CLR_THR: Color = BLUE;
 
 pub struct Ship {
+    emitter: Emitter,
     pub pos: Vec2,
     pub speed: Vec2,
     pub rotation_rad: f32,
@@ -39,6 +41,19 @@ pub struct Ship {
 impl Default for Ship {
     fn default() -> Self {
         Self {
+            emitter: Emitter::new(EmitterConfig {
+                lifetime: 1.0,
+                amount: 0,
+                initial_direction_spread: 20.0 * DEG_TO_RAD,
+                initial_velocity: -50.0,
+                size: 2.0,
+                colors_curve: macroquad_particles::ColorCurve {
+                    start: CLR_THR,
+                    mid: RED,
+                    end: ORANGE,
+                },
+                ..Default::default()
+            }),
             pos: vec2(screen_width() / 2.0, screen_height() / 2.0),
             speed: Vec2::ZERO,
             rotation_rad: 0.0,
@@ -62,18 +77,32 @@ impl Ship {
         self.rotation_rad += self.speed_angular * dt;
     }
 
-    pub fn draw(&self, input_dir: Vec2) {
+    pub fn draw(&mut self, input_dir: Vec2) {
         let rot_vec = Vec2::from_angle(self.rotation_rad);
 
         // Draw the thrust of the engine
+        let v_11 = rot_vec.rotate(V_FIRE_TOP) + self.pos;
+        let v_22 = rot_vec.rotate(V_FIRE_BTM) + self.pos;
         if input_dir.x > 0.0 {
             // Forward thrust
-            draw_line_w_rot(rot_vec, self.pos, V_FIRE_TOP, V_FIRE_BTM, 6.0, CLR_THR);
+            // draw_line_w_rot(rot_vec, self.pos, V_FIRE_TOP, V_FIRE_BTM, 6.0, CLR_THR);
+            draw_line(v_11.x, v_11.y, v_22.x, v_22.y, 6.0, CLR_THR);
+            // let direction = Vec2::from_angle(-FRAC_PI_2 + self.rotation_rad);
+            self.emitter.config.initial_direction =
+                Vec2::from_angle(-FRAC_PI_2 + self.rotation_rad);
+            // self.emitter.emit(v_22, 1);
+            self.emitter.config.initial_angular_velocity = self.speed_angular;
+            self.emitter.config.initial_velocity = self.speed.length() - 100.0;
+            self.emitter.config.amount = 8;
         } else if input_dir.x < 0.0 {
             // Backward thrust
             draw_line_w_rot(rot_vec, self.pos, V_FIRE_R_R_1, V_FIRE_R_R_2, 3.0, CLR_THR);
             draw_line_w_rot(rot_vec, self.pos, V_FIRE_R_L_1, V_FIRE_R_L_2, 3.0, CLR_THR);
+        } else {
+            self.emitter.config.amount = 0;
         }
+        self.emitter.draw(v_22);
+        // self.emitter.
 
         // Draw radial thrust
         if input_dir.y.abs() > 0.0 {
