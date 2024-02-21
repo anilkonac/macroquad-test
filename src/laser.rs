@@ -14,7 +14,6 @@ pub struct Laser {
     pub position: Vec2,
     pub speed: Vec2,
     pub direction: Vec2,
-    // active: bool,
 }
 
 pub struct LaserPool {
@@ -31,29 +30,24 @@ impl LaserPool {
     }
 
     pub fn get_next_laser(&mut self) -> &mut Laser {
-        let num_lasers = self.lasers.len();
-        let laser = self.lasers.get_mut(self.index_next_laser).unwrap();
+        let index_cur = self.index_next_laser;
+
         self.index_next_laser += 1;
-        if self.index_next_laser > num_lasers - 1 {
+        if self.index_next_laser > self.lasers.len() - 1 {
             self.index_next_laser = 0;
         }
-        laser
+
+        &mut self.lasers[index_cur]
     }
 
     pub fn update(&mut self, dt: f32) {
         for laser in self.lasers.iter_mut() {
-            // if !laser.active {
-            //     return;
-            // }
             laser.position += laser.speed * dt;
         }
     }
 
     pub fn draw(&self) {
         for laser in self.lasers.iter() {
-            // if !laser.active {
-            //     return;
-            // }
             draw_line_w_rot(
                 laser.direction,
                 laser.position,
