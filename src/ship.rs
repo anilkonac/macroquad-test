@@ -49,8 +49,8 @@ impl Default for Ship {
                 size: 2.0,
                 colors_curve: macroquad_particles::ColorCurve {
                     start: CLR_THR,
-                    mid: RED,
-                    end: ORANGE,
+                    mid: PURPLE,
+                    end: RED,
                 },
                 ..Default::default()
             }),
@@ -103,8 +103,7 @@ impl Ship {
             // draw_line_w_rot(rot_vec, self.pos, V_FIRE_TOP, V_FIRE_BTM, 6.0, CLR_THR);
             draw_line(v_11.x, v_11.y, v_22.x, v_22.y, 6.0, CLR_THR);
             // let direction = Vec2::from_angle(-FRAC_PI_2 + self.rotation_rad);
-            self.emitter.config.initial_direction =
-                Vec2::from_angle(-FRAC_PI_2 + self.rotation_rad);
+            self.emitter.config.initial_direction = self.speed.normalize_or_zero();
             // self.emitter.emit(v_22, 1);
             self.emitter.config.initial_angular_velocity = self.speed_angular;
             self.emitter.config.initial_velocity = self.speed.length() - 100.0;

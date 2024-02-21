@@ -32,7 +32,7 @@ impl LaserPool {
 
     pub fn get_next_laser(&mut self) -> &mut Laser {
         let num_lasers = self.lasers.len();
-        let laser = self.lasers.get_mut(self.index_next_laser).unwrap();
+        let laser = &mut self.lasers[self.index_next_laser];
         self.index_next_laser += 1;
         if self.index_next_laser > num_lasers - 1 {
             self.index_next_laser = 0;

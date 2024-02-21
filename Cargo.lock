@@ -34,9 +34,9 @@ checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
 name = "bumpalo"
-version = "3.15.1"
+version = "3.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c764d619ca78fccbf3069b37bd7af92577f044bb15236036662d79b6559f25b7"
+checksum = "a3b1be7772ee4501dba05acbe66bb1e8760f6a6c474a36035631638e4415f130"
 
 [[package]]
 name = "bytemuck"
@@ -136,8 +136,8 @@ checksum = "9c198f91728a82281a64e1f4f9eeb25d82cb32a5de251c6bd1b5154d63a8e7bd"
 
 [[package]]
 name = "macroquad"
-version = "0.4.4"
-source = "git+https://github.com/not-fl3/macroquad#64f03a4454429177f0b4aa16782ecfc537bb7d68"
+version = "0.4.5"
+source = "git+https://github.com/anilkonac/macroquad?branch=teleporting-particles#0356efbb31e65d55742e6fe4a6aac4988d0d6ab8"
 dependencies = [
  "bumpalo",
  "fontdue",
@@ -151,8 +151,8 @@ dependencies = [
 
 [[package]]
 name = "macroquad-particles"
-version = "0.2.0"
-source = "git+https://github.com/not-fl3/macroquad#64f03a4454429177f0b4aa16782ecfc537bb7d68"
+version = "0.2.1"
+source = "git+https://github.com/anilkonac/macroquad?branch=teleporting-particles#0356efbb31e65d55742e6fe4a6aac4988d0d6ab8"
 dependencies = [
  "macroquad",
 ]
@@ -168,7 +168,7 @@ dependencies = [
 [[package]]
 name = "macroquad_macro"
 version = "0.1.7"
-source = "git+https://github.com/not-fl3/macroquad#64f03a4454429177f0b4aa16782ecfc537bb7d68"
+source = "git+https://github.com/anilkonac/macroquad?branch=teleporting-particles#0356efbb31e65d55742e6fe4a6aac4988d0d6ab8"
 
 [[package]]
 name = "malloc_buf"
@@ -181,9 +181,9 @@ dependencies = [
 
 [[package]]
 name = "miniquad"
-version = "0.4.0-alpha.10"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18742c400c9aa2d9b4ca72d366a38c9e2d896386e50c2e6d905b6028543a0a0b"
+checksum = "91e9c578ad261f84512751bfdd9919c762ecd6103d06051fbdaede35136e1988"
 dependencies = [
  "libc",
  "ndk-sys",
