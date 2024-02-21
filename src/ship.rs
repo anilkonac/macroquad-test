@@ -60,6 +60,21 @@ impl Ship {
         }
         self.pos += self.speed * dt;
         self.rotation_rad += self.speed_angular * dt;
+
+        // Screen edge Teleportation
+        let screen_width = screen_width();
+        if self.pos.x < -SHIP_RADIUS {
+            self.pos.x = screen_width + SHIP_RADIUS;
+        } else if self.pos.x > screen_width + SHIP_RADIUS {
+            self.pos.x = -SHIP_RADIUS;
+        }
+
+        let screen_height = screen_height();
+        if self.pos.y < -SHIP_RADIUS {
+            self.pos.y = screen_height + SHIP_RADIUS;
+        } else if self.pos.y > screen_height + SHIP_RADIUS {
+            self.pos.y = -SHIP_RADIUS;
+        }
     }
 
     pub fn draw(&self, input_dir: Vec2) {
