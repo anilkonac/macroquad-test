@@ -15,7 +15,9 @@ impl<T: Default> ObjectPool<T> {
             index_next: 0,
         }
     }
+}
 
+impl<T> ObjectPool<T> {
     pub fn get_next_mut(&mut self) -> &mut T {
         let index_cur = self.index_next;
 

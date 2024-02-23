@@ -35,7 +35,7 @@ async fn main() {
         ship.draw(input_direction);
         laser_manager.draw();
         // draw_text_speed(&speed);
-        draw_text_fps();
+        draw_text_fps(dt);
 
         next_frame().await
     }
@@ -57,7 +57,7 @@ fn draw_text_speed(speed: &Vec2) {
 }
 
 #[allow(dead_code)]
-fn draw_text_fps() {
-    let fps_text = String::from("FPS: ") + &get_fps().to_string();
+fn draw_text_fps(dt: f32) {
+    let fps_text = String::from("FPS: ") + &((1.0 / dt) as i32).to_string();
     draw_text(&fps_text, screen_width() - 120.0, 16.0, 30.0, GRAY);
 }
