@@ -1,5 +1,4 @@
 use macroquad::prelude::*;
-use macroquad_test::Timer;
 
 mod input;
 mod laser;
@@ -17,8 +16,7 @@ const LASER_FIRE_PERIOD: f32 = 0.3;
 #[macroquad::main(window_conf)]
 async fn main() {
     let mut ship = ship::Ship::default();
-    let mut laser_pool = laser::LaserPool::create(20);
-    let mut fire_timer = Timer::create(LASER_FIRE_PERIOD);
+    let mut laser_manager = laser::LaserManager::new(20, LASER_FIRE_PERIOD);
     let mut input_direction = Vec2::ZERO;
 
     loop {
@@ -26,16 +24,16 @@ async fn main() {
 
         // Handle input
         input::handle_input_direction(&mut input_direction);
-        input::handle_input_fire(&ship, &mut laser_pool, &mut fire_timer, dt);
+        input::handle_input_fire(&ship, &mut laser_manager, dt);
 
         // Update
         ship.update(input_direction, dt);
-        laser_pool.update(dt);
+        laser_manager.update(dt);
 
         // Draw
         clear_background(BLACK);
         ship.draw(input_direction);
-        laser_pool.draw();
+        laser_manager.draw();
         // draw_text_speed(&speed);
         draw_text_fps();
 
