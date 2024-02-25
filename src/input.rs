@@ -7,10 +7,10 @@ const LASER_FIRE_KEY: KeyCode = KeyCode::Space;
 
 pub fn handle_input_fire(ship: &Ship, laser_manager: &mut LaserManager, dt: f32) {
     if is_key_down(LASER_FIRE_KEY) {
-        if let Some(next_laser) = laser_manager.fire(dt) {
-            next_laser.direction = Vec2::from_angle(-FRAC_PI_2 + ship.rotation_rad);
-            next_laser.position = ship.pos + next_laser.direction.rotate(vec2(SHIP_RADIUS, 0.0));
-            next_laser.speed = ship.speed + next_laser.direction * crate::LASER_VELOCITY;
+        if let Some(fired_laser) = laser_manager.fire(dt) {
+            fired_laser.direction = Vec2::from_angle(-FRAC_PI_2 + ship.rotation_rad);
+            fired_laser.position = ship.pos + fired_laser.direction.rotate(vec2(SHIP_RADIUS, 0.0));
+            fired_laser.speed = ship.speed + fired_laser.direction * crate::LASER_VELOCITY;
         }
     } else if is_key_released(LASER_FIRE_KEY) {
         laser_manager.stop();

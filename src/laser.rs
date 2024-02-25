@@ -45,13 +45,13 @@ impl LaserManager {
     }
 
     pub fn update(&mut self, dt: f32) {
-        self.pool.for_each_mut(|laser: &mut Laser| {
+        self.pool.for_each_mut(|laser| {
             laser.position += laser.speed * dt;
         });
     }
 
-    pub fn draw(&mut self) {
-        self.pool.for_each(|laser: &Laser| {
+    pub fn draw(&self) {
+        self.pool.for_each(|laser| {
             draw_line_w_rot(
                 laser.direction,
                 laser.position,

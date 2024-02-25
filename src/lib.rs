@@ -1,10 +1,10 @@
 use macroquad::prelude::*;
 use std::f32::consts::PI;
 
+pub mod core;
+
 pub const SQRT_3: f32 = 1.73205080757f32;
 pub const DEG_TO_RAD: f32 = PI / 180.0f32;
-
-pub mod core;
 
 #[inline]
 pub fn draw_line_w_rot(rot_vec: Vec2, pos: Vec2, v1: Vec2, v2: Vec2, thickness: f32, color: Color) {
