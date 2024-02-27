@@ -16,27 +16,26 @@ const LASER_FIRE_PERIOD: f32 = 0.3;
 #[macroquad::main(window_conf)]
 async fn main() {
     let mut ship = ship::Ship::default();
-    let mut laser_pool = laser::LaserPool::create(20);
+    let mut laser_manager = laser::LaserManager::new(20, LASER_FIRE_PERIOD);
     let mut input_direction = Vec2::ZERO;
-    let mut fire_time_accum = LASER_FIRE_PERIOD;
 
     loop {
         let dt = get_frame_time();
 
         // Handle input
         input::handle_input_direction(&mut input_direction);
-        input::handle_input_fire(&ship, &mut laser_pool, &mut fire_time_accum, dt);
+        input::handle_input_fire(&ship, &mut laser_manager, dt);
 
         // Update
         ship.update(input_direction, dt);
-        laser_pool.update(dt);
+        laser_manager.update(dt);
 
         // Draw
         clear_background(BLACK);
         ship.draw(input_direction);
-        laser_pool.draw();
+        laser_manager.draw();
         // draw_text_speed(&speed);
-        draw_text_fps();
+        draw_text_fps(dt);
 
         next_frame().await
     }
@@ -58,7 +57,7 @@ fn draw_text_speed(speed: &Vec2) {
 }
 
 #[allow(dead_code)]
-fn draw_text_fps() {
-    let fps_text = String::from("FPS: ") + &get_fps().to_string();
+fn draw_text_fps(dt: f32) {
+    let fps_text = String::from("FPS: ") + &((1.0 / dt) as i32).to_string();
     draw_text(&fps_text, screen_width() - 120.0, 16.0, 30.0, GRAY);
 }

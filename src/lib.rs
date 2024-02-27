@@ -1,6 +1,8 @@
 use macroquad::prelude::*;
 use std::f32::consts::PI;
 
+pub mod core;
+
 pub const SQRT_3: f32 = 1.73205080757f32;
 pub const DEG_TO_RAD: f32 = PI / 180.0f32;
 
