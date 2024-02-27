@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 use macroquad_test::{draw_line_w_rot, draw_triangle, DEG_TO_RAD, SQRT_3};
 use std::f32::consts::FRAC_PI_2;
 
-use crate::SHIP_RADIUS;
+use crate::{SHIP_RADIUS, SHIP_VELOCITY_MAX};
 
 const FRAC_RADIUS_4: f32 = SHIP_RADIUS / 4.0;
 const SRADIUS_COS30: f32 = SHIP_RADIUS * 0.86602540378f32;
@@ -33,7 +33,7 @@ pub struct Ship {
     pub pos: Vec2,
     pub speed: Vec2,
     pub rotation_rad: f32,
-    speed_angular: f32,
+    speed_angular_rad: f32,
 }
 
 impl Default for Ship {
@@ -42,7 +42,7 @@ impl Default for Ship {
             pos: vec2(screen_width() / 2.0, screen_height() / 2.0),
             speed: Vec2::ZERO,
             rotation_rad: 0.0,
-            speed_angular: 0.0,
+            speed_angular_rad: 0.0,
         }
     }
 }
@@ -50,30 +50,54 @@ impl Default for Ship {
 impl Ship {
     pub fn update(&mut self, input_direction: Vec2, dt: f32) {
         if input_direction != Vec2::ZERO {
-            self.speed_angular += input_direction.y * ACCELERATION_ANGULAR_RAD * dt;
-            self.speed_angular = self
-                .speed_angular
+            self.speed_angular_rad += input_direction.y * ACCELERATION_ANGULAR_RAD * dt;
+            self.speed_angular_rad = self
+                .speed_angular_rad
                 .clamp(-MAX_VELOCITY_ANGULAR_RAD, MAX_VELOCITY_ANGULAR_RAD);
             let direction = Vec2::from_angle(-FRAC_PI_2 + self.rotation_rad);
             self.speed += direction * input_direction.x * crate::SHIP_ACCELERATION * dt;
             self.speed = self.speed.clamp_length_max(crate::SHIP_VELOCITY_MAX);
         }
         self.pos += self.speed * dt;
-        self.rotation_rad += self.speed_angular * dt;
+        self.rotation_rad += self.speed_angular_rad * dt;
 
-        // Screen edge Teleportation
-        let screen_width = screen_width();
-        if self.pos.x < -SHIP_RADIUS {
-            self.pos.x = screen_width + SHIP_RADIUS;
-        } else if self.pos.x > screen_width + SHIP_RADIUS {
-            self.pos.x = -SHIP_RADIUS;
+        self.teleport();
+    }
+
+    fn teleport(&mut self) {
+        let (pos_x, pos_y) = (self.pos.x, self.pos.y);
+        let (screen_width, screen_height) = (screen_width(), screen_height());
+        let off_screen_left = pos_x < -SHIP_RADIUS;
+        let off_screen_right = pos_x > screen_width + SHIP_RADIUS;
+        let off_screen_up = pos_y < -SHIP_RADIUS;
+        let off_screen_down = pos_y > screen_height + SHIP_RADIUS;
+
+        if !off_screen_left && !off_screen_right && !off_screen_up && !off_screen_down {
+            return;
+        }
+        // println!("Teleport");
+
+        let abs_speed = self.speed.abs();
+        // let speed_length = self.speed.length();
+
+        // let lerp_const = abs_speed.y / speed_length;
+        let lerp_const = abs_speed.y / SHIP_VELOCITY_MAX;
+        // print!("lerp_const_y: {:?}\t", lerp_const);
+        let pos_y_lerp = || pos_y * (1.0 - lerp_const) + (screen_height - pos_y) * lerp_const;
+        if off_screen_left {
+            self.pos = vec2(screen_width + SHIP_RADIUS, pos_y_lerp());
+        } else if off_screen_right {
+            self.pos = vec2(-SHIP_RADIUS, pos_y_lerp());
         }
 
-        let screen_height = screen_height();
-        if self.pos.y < -SHIP_RADIUS {
-            self.pos.y = screen_height + SHIP_RADIUS;
-        } else if self.pos.y > screen_height + SHIP_RADIUS {
-            self.pos.y = -SHIP_RADIUS;
+        // let lerp_const = abs_speed.x / speed_length;
+        let lerp_const = abs_speed.x / SHIP_VELOCITY_MAX;
+        // println!("lerp_const_x: {:?}", lerp_const);
+        let pos_x_lerp = || pos_x * (1.0 - lerp_const) + (screen_width - pos_x) * lerp_const;
+        if off_screen_up {
+            self.pos = vec2(pos_x_lerp(), screen_height + SHIP_RADIUS);
+        } else if off_screen_down {
+            self.pos = vec2(pos_x_lerp(), -SHIP_RADIUS);
         }
     }
 
