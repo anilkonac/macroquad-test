@@ -65,12 +65,12 @@ impl Ship {
     }
 
     fn teleport(&mut self) {
-        let (pos_x, pos_y) = (self.pos.x, self.pos.y);
+        let pos = &mut self.pos;
         let (screen_width, screen_height) = (screen_width(), screen_height());
-        let off_screen_left = pos_x < -SHIP_RADIUS;
-        let off_screen_right = pos_x > screen_width + SHIP_RADIUS;
-        let off_screen_up = pos_y < -SHIP_RADIUS;
-        let off_screen_down = pos_y > screen_height + SHIP_RADIUS;
+        let off_screen_left = pos.x < -SHIP_RADIUS;
+        let off_screen_right = pos.x > screen_width + SHIP_RADIUS;
+        let off_screen_up = pos.y < -SHIP_RADIUS;
+        let off_screen_down = pos.y > screen_height + SHIP_RADIUS;
 
         if !off_screen_left && !off_screen_right && !off_screen_up && !off_screen_down {
             return;
@@ -83,21 +83,21 @@ impl Ship {
         // let lerp_const = abs_speed.y / speed_length;
         let lerp_const = abs_speed.y / SHIP_VELOCITY_MAX;
         // print!("lerp_const_y: {:?}\t", lerp_const);
-        let pos_y_lerp = || pos_y * (1.0 - lerp_const) + (screen_height - pos_y) * lerp_const;
+        let pos_y_lerp = || pos.y * (1.0 - lerp_const) + (screen_height - pos.y) * lerp_const;
         if off_screen_left {
-            self.pos = vec2(screen_width + SHIP_RADIUS, pos_y_lerp());
+            *pos = vec2(screen_width + SHIP_RADIUS, pos_y_lerp());
         } else if off_screen_right {
-            self.pos = vec2(-SHIP_RADIUS, pos_y_lerp());
+            *pos = vec2(-SHIP_RADIUS, pos_y_lerp());
         }
 
         // let lerp_const = abs_speed.x / speed_length;
         let lerp_const = abs_speed.x / SHIP_VELOCITY_MAX;
         // println!("lerp_const_x: {:?}", lerp_const);
-        let pos_x_lerp = || pos_x * (1.0 - lerp_const) + (screen_width - pos_x) * lerp_const;
+        let pos_x_lerp = || pos.x * (1.0 - lerp_const) + (screen_width - pos.x) * lerp_const;
         if off_screen_up {
-            self.pos = vec2(pos_x_lerp(), screen_height + SHIP_RADIUS);
+            *pos = vec2(pos_x_lerp(), screen_height + SHIP_RADIUS);
         } else if off_screen_down {
-            self.pos = vec2(pos_x_lerp(), -SHIP_RADIUS);
+            *pos = vec2(pos_x_lerp(), -SHIP_RADIUS);
         }
     }
 
