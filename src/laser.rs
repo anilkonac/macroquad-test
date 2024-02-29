@@ -45,8 +45,24 @@ impl LaserManager {
     }
 
     pub fn update(&mut self, dt: f32) {
+        let sc_width = screen_width();
+        let sc_height = screen_height();
+
         self.pool.for_each_mut(|laser| {
-            laser.position += laser.speed * dt;
+            let pos = &mut laser.position;
+            *pos += laser.speed * dt;
+
+            if pos.x < -LASER_LENGTH {
+                pos.x = sc_width + LASER_LENGTH;
+            } else if pos.x > sc_width + LASER_LENGTH {
+                pos.x = -LASER_LENGTH;
+            }
+
+            if pos.y < -LASER_LENGTH {
+                pos.y = sc_height + LASER_LENGTH;
+            } else if pos.y > sc_height + LASER_LENGTH {
+                pos.y = -LASER_LENGTH;
+            }
         });
     }
 
