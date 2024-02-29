@@ -21,3 +21,8 @@ pub fn draw_triangle(vertices: &[Vertex; 3]) {
     context.draw_mode(DrawMode::Triangles);
     context.geometry(vertices, &INDICES);
 }
+
+#[inline(always)]
+pub fn lerp(a: f32, b: f32, alpha: f32) -> f32 {
+    a * (1. - alpha) + b * alpha
+}
