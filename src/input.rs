@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 use std::f32::consts::FRAC_PI_2;
 
-use crate::{laser::LaserManager, ship::Ship, SHIP_RADIUS};
+use crate::{laser::LaserManager, ship::Ship, LASER_LIFETIME, SHIP_RADIUS};
 
 const LASER_FIRE_KEY: KeyCode = KeyCode::Space;
 
@@ -11,6 +11,7 @@ pub fn handle_input_fire(ship: &Ship, laser_manager: &mut LaserManager, dt: f32)
             fired_laser.direction = Vec2::from_angle(-FRAC_PI_2 + ship.rotation_rad);
             fired_laser.position = ship.pos + fired_laser.direction.rotate(vec2(SHIP_RADIUS, 0.0));
             fired_laser.speed = ship.speed + fired_laser.direction * crate::LASER_VELOCITY;
+            fired_laser.lifetime = LASER_LIFETIME;
         }
     } else if is_key_released(LASER_FIRE_KEY) {
         laser_manager.stop();
