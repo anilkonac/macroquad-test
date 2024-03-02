@@ -2,8 +2,9 @@ use macroquad::prelude::*;
 use macroquad_test::{draw_line_w_rot, draw_triangle, lerp, DEG_TO_RAD, SQRT_3};
 use std::f32::consts::FRAC_PI_2;
 
-use crate::{SHIP_RADIUS, SHIP_VELOCITY_MAX};
+use crate::SHIP_VELOCITY_MAX;
 
+pub const SHIP_RADIUS: f32 = 20.0;
 const FRAC_RADIUS_4: f32 = SHIP_RADIUS / 4.0;
 const SRADIUS_COS30: f32 = SHIP_RADIUS * 0.86602540378f32;
 const SRADIUS_SIN30: f32 = SHIP_RADIUS * 0.5;

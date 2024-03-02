@@ -51,10 +51,11 @@ impl LaserManager {
         let sc_height = screen_height();
 
         self.pool.for_each_mut(|laser| {
-            if laser.lifetime < 0.0 {
+            if laser.lifetime <= 0.0 {
                 return;
             }
             laser.lifetime -= dt;
+            // println!("Update");
 
             let pos = &mut laser.position;
             *pos += laser.speed * dt;
@@ -75,7 +76,7 @@ impl LaserManager {
 
     pub fn draw(&self) {
         self.pool.for_each(|laser| {
-            if laser.lifetime < 0.0 {
+            if laser.lifetime <= 0.0 {
                 return;
             }
             draw_line_w_rot(

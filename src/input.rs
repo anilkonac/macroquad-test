@@ -1,7 +1,11 @@
 use macroquad::prelude::*;
 use std::f32::consts::FRAC_PI_2;
 
-use crate::{laser::LaserManager, ship::Ship, LASER_LIFETIME, SHIP_RADIUS};
+use crate::{
+    laser::LaserManager,
+    ship::{Ship, SHIP_RADIUS},
+    LASER_LIFETIME,
+};
 
 const LASER_FIRE_KEY: KeyCode = KeyCode::Space;
 
@@ -28,7 +32,7 @@ pub fn handle_input_direction(direction: &mut Vec2) {
         direction.y -= 1.0;
     }
     if is_key_down(KeyCode::Up) || is_key_down(KeyCode::W) {
-        direction.x = 1.0;
+        direction.x += 1.0;
     }
     if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
         direction.x -= 1.0;
