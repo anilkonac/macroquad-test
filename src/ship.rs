@@ -1,8 +1,10 @@
 use macroquad::prelude::*;
 use macroquad_test::{draw_line_w_rot, draw_triangle, DEG_TO_RAD, SQRT_3};
-use std::f32::consts::FRAC_PI_2;
+use std::f32::consts::{FRAC_PI_2, PI};
 
 use crate::SHIP_RADIUS;
+
+const PI_2: f32 = PI * 2.0;
 
 const FRAC_RADIUS_4: f32 = SHIP_RADIUS / 4.0;
 const SRADIUS_COS30: f32 = SHIP_RADIUS * 0.86602540378f32;
@@ -60,6 +62,10 @@ impl Ship {
         }
         self.pos += self.speed * dt;
         self.rotation_rad += self.speed_angular * dt;
+        if (self.rotation_rad < 0.0) || (self.rotation_rad > PI_2) {
+            self.rotation_rad = self.rotation_rad.rem_euclid(PI_2);
+            // println!("Modulo!")
+        }
     }
 
     pub fn draw(&self, input_dir: Vec2) {
