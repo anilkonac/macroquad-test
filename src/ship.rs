@@ -1,10 +1,8 @@
 use macroquad::prelude::*;
-use macroquad_test::{draw_line_w_rot, draw_triangle, DEG_TO_RAD, SQRT_3};
-use std::f32::consts::{FRAC_PI_2, PI};
+use macroquad_test::{draw_line_w_rot, draw_triangle, normalize_rad, DEG_TO_RAD, SQRT_3};
+use std::f32::consts::FRAC_PI_2;
 
-use crate::SHIP_RADIUS;
-
-const PI_2: f32 = PI * 2.0;
+pub const SHIP_RADIUS: f32 = 20.0;
 
 const FRAC_RADIUS_4: f32 = SHIP_RADIUS / 4.0;
 const SRADIUS_COS30: f32 = SHIP_RADIUS * 0.86602540378f32;
@@ -35,7 +33,7 @@ pub struct Ship {
     pub pos: Vec2,
     pub speed: Vec2,
     pub rotation_rad: f32,
-    speed_angular: f32,
+    speed_angular_rad: f32,
 }
 
 impl Default for Ship {
@@ -44,7 +42,7 @@ impl Default for Ship {
             pos: vec2(screen_width() / 2.0, screen_height() / 2.0),
             speed: Vec2::ZERO,
             rotation_rad: 0.0,
-            speed_angular: 0.0,
+            speed_angular_rad: 0.0,
         }
     }
 }
@@ -52,20 +50,17 @@ impl Default for Ship {
 impl Ship {
     pub fn update(&mut self, input_direction: Vec2, dt: f32) {
         if input_direction != Vec2::ZERO {
-            self.speed_angular += input_direction.y * ACCELERATION_ANGULAR_RAD * dt;
-            self.speed_angular = self
-                .speed_angular
+            self.speed_angular_rad += input_direction.y * ACCELERATION_ANGULAR_RAD * dt;
+            self.speed_angular_rad = self
+                .speed_angular_rad
                 .clamp(-MAX_VELOCITY_ANGULAR_RAD, MAX_VELOCITY_ANGULAR_RAD);
             let direction = Vec2::from_angle(-FRAC_PI_2 + self.rotation_rad);
             self.speed += direction * input_direction.x * crate::SHIP_ACCELERATION * dt;
             self.speed = self.speed.clamp_length_max(crate::SHIP_VELOCITY_MAX);
         }
         self.pos += self.speed * dt;
-        self.rotation_rad += self.speed_angular * dt;
-        if (self.rotation_rad < 0.0) || (self.rotation_rad > PI_2) {
-            self.rotation_rad = self.rotation_rad.rem_euclid(PI_2);
-            // println!("Modulo!")
-        }
+        self.rotation_rad += self.speed_angular_rad * dt;
+        self.rotation_rad = normalize_rad(self.rotation_rad);
     }
 
     pub fn draw(&self, input_dir: Vec2) {

@@ -3,6 +3,7 @@ use std::f32::consts::PI;
 
 pub mod core;
 
+const PI_2: f32 = PI * 2.0;
 pub const SQRT_3: f32 = 1.73205080757f32;
 pub const DEG_TO_RAD: f32 = PI / 180.0f32;
 
@@ -20,4 +21,15 @@ pub fn draw_triangle(vertices: &[Vertex; 3]) {
     context.texture(None);
     context.draw_mode(DrawMode::Triangles);
     context.geometry(vertices, &INDICES);
+}
+
+#[inline]
+pub fn normalize_rad(rad_val: f32) -> f32 {
+    if rad_val < 0.0 {
+        return rad_val + PI_2;
+    }
+    if rad_val > PI_2 {
+        return rad_val - PI_2;
+    }
+    rad_val
 }

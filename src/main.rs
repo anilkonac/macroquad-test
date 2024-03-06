@@ -5,7 +5,6 @@ mod laser;
 mod ship;
 
 // Main constants that affect gameplay
-const SHIP_RADIUS: f32 = 20.0;
 const SHIP_ACCELERATION: f32 = 100.0;
 const SHIP_ACCELERATION_ANGULAR: f32 = 100.0;
 const SHIP_VELOCITY_MAX: f32 = 300.0;
