@@ -2,8 +2,6 @@ use macroquad::prelude::*;
 use macroquad_test::{draw_line_w_rot, draw_triangle, lerp, normalize_rad, DEG_TO_RAD, SQRT_3};
 use std::f32::consts::FRAC_PI_2;
 
-use crate::SHIP_VELOCITY_MAX;
-
 pub const SHIP_RADIUS: f32 = 20.0;
 
 const FRAC_RADIUS_4: f32 = SHIP_RADIUS / 4.0;
@@ -63,7 +61,7 @@ impl Ship {
         self.pos += self.speed * dt;
         self.rotation_rad += self.speed_angular_rad * dt;
         self.rotation_rad = normalize_rad(self.rotation_rad);
-        
+
         self.teleport();
     }
 
@@ -78,13 +76,10 @@ impl Ship {
         if !off_screen_left && !off_screen_right && !off_screen_up && !off_screen_down {
             return;
         }
-        // println!("Teleport");
 
-        let abs_speed = self.speed.abs();
-        // let speed_length = self.speed.length();
+        let abs_normalized_speed = self.speed.normalize().abs();
 
-        // let lerp_const = abs_speed.y / speed_length;
-        let lerp_const = abs_speed.y / SHIP_VELOCITY_MAX;
+        let lerp_const = abs_normalized_speed.y / 1.0;
         let pos_y_lerp = || lerp(pos.y, screen_height - pos.y, lerp_const);
         if off_screen_left {
             *pos = vec2(screen_width + SHIP_RADIUS, pos_y_lerp());
@@ -92,8 +87,7 @@ impl Ship {
             *pos = vec2(-SHIP_RADIUS, pos_y_lerp());
         }
 
-        // let lerp_const = abs_speed.x / speed_length;
-        let lerp_const = abs_speed.x / SHIP_VELOCITY_MAX;
+        let lerp_const = abs_normalized_speed.x / 1.0;
         let pos_x_lerp = || lerp(pos.x, screen_width - pos.x, lerp_const);
         if off_screen_up {
             *pos = vec2(pos_x_lerp(), screen_height + SHIP_RADIUS);

@@ -36,7 +36,6 @@ async fn main() {
 
         // Draw debug texts
         // draw_text_speed(ship.speed);
-        // draw_text_rotation(ship.rotation_rad.to_degrees());
         // draw_text_rotation(ship.rotation_rad);
         draw_text_fps(dt);
 
