@@ -5,7 +5,6 @@ mod laser;
 mod ship;
 
 // Main constants that affect gameplay
-const SHIP_RADIUS: f32 = 20.0;
 const SHIP_ACCELERATION: f32 = 200.0;
 const SHIP_ACCELERATION_ANGULAR: f32 = 100.0;
 const SHIP_VELOCITY_MAX: f32 = 500.0;
@@ -34,7 +33,11 @@ async fn main() {
         clear_background(BLACK);
         ship.draw(input_direction);
         laser_manager.draw();
-        // draw_text_speed(&speed);
+
+        // Draw debug texts
+        // draw_text_speed(ship.speed);
+        // draw_text_rotation(ship.rotation_rad.to_degrees());
+        // draw_text_rotation(ship.rotation_rad);
         draw_text_fps(dt);
 
         next_frame().await
@@ -51,8 +54,14 @@ fn window_conf() -> Conf {
 }
 
 #[allow(dead_code)]
-fn draw_text_speed(speed: &Vec2) {
+fn draw_text_speed(speed: Vec2) {
     let speed_text = "Speed: ".to_string() + &speed.to_string();
+    draw_text(&speed_text, 0.0, 16.0, 30.0, GRAY);
+}
+
+#[allow(dead_code)]
+fn draw_text_rotation(rot: f32) {
+    let speed_text = "Rotation: ".to_string() + &rot.to_string();
     draw_text(&speed_text, 0.0, 16.0, 30.0, GRAY);
 }
 

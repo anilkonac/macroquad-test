@@ -1,7 +1,10 @@
 use macroquad::prelude::*;
 use std::f32::consts::FRAC_PI_2;
 
-use crate::{laser::LaserManager, ship::Ship, SHIP_RADIUS};
+use crate::{
+    laser::LaserManager,
+    ship::{Ship, SHIP_RADIUS},
+};
 
 const LASER_FIRE_KEY: KeyCode = KeyCode::Space;
 
