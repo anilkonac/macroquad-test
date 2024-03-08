@@ -3,6 +3,7 @@ use macroquad::prelude::*;
 mod input;
 mod laser;
 mod ship;
+mod teleport;
 
 // Main constants that affect gameplay
 const SHIP_ACCELERATION: f32 = 200.0;

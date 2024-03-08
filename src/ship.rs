@@ -1,6 +1,8 @@
 use macroquad::prelude::*;
-use macroquad_test::{draw_line_w_rot, draw_triangle, lerp, normalize_rad, DEG_TO_RAD, SQRT_3};
+use macroquad_test::{draw_line_w_rot, draw_triangle, normalize_rad, DEG_TO_RAD, SQRT_3};
 use std::f32::consts::FRAC_PI_2;
+
+use crate::teleport::Teleport;
 
 pub const SHIP_RADIUS: f32 = 20.0;
 const FRAC_RADIUS_4: f32 = SHIP_RADIUS / 4.0;
@@ -46,6 +48,23 @@ impl Default for Ship {
     }
 }
 
+impl Teleport for Ship {
+    #[inline(always)]
+    fn position(&self) -> Vec2 {
+        self.pos
+    }
+
+    #[inline(always)]
+    fn set_position(&mut self, x: f32, y: f32) {
+        self.pos = vec2(x, y);
+    }
+
+    #[inline(always)]
+    fn speed(&self) -> Vec2 {
+        self.speed
+    }
+}
+
 impl Ship {
     pub fn update(&mut self, input_direction: Vec2, dt: f32) {
         if input_direction != Vec2::ZERO {
@@ -61,38 +80,7 @@ impl Ship {
         self.rotation_rad += self.speed_angular_rad * dt;
         self.rotation_rad = normalize_rad(self.rotation_rad);
 
-        self.teleport();
-    }
-
-    fn teleport(&mut self) {
-        let pos = &mut self.pos;
-        let (screen_width, screen_height) = (screen_width(), screen_height());
-        let off_screen_left = pos.x < -SHIP_RADIUS;
-        let off_screen_right = pos.x > screen_width + SHIP_RADIUS;
-        let off_screen_up = pos.y < -SHIP_RADIUS;
-        let off_screen_down = pos.y > screen_height + SHIP_RADIUS;
-
-        if !off_screen_left && !off_screen_right && !off_screen_up && !off_screen_down {
-            return;
-        }
-
-        let abs_speed_direction = self.speed.normalize_or_zero().abs();
-
-        let lerp_const = abs_speed_direction.y / 1.0;
-        let pos_y_lerp = || lerp(pos.y, screen_height - pos.y, lerp_const);
-        if off_screen_left {
-            *pos = vec2(screen_width + SHIP_RADIUS, pos_y_lerp());
-        } else if off_screen_right {
-            *pos = vec2(-SHIP_RADIUS, pos_y_lerp());
-        }
-
-        let lerp_const = abs_speed_direction.x / 1.0;
-        let pos_x_lerp = || lerp(pos.x, screen_width - pos.x, lerp_const);
-        if off_screen_up {
-            *pos = vec2(pos_x_lerp(), screen_height + SHIP_RADIUS);
-        } else if off_screen_down {
-            *pos = vec2(pos_x_lerp(), -SHIP_RADIUS);
-        }
+        self.teleport(SHIP_RADIUS);
     }
 
     pub fn draw(&self, input_dir: Vec2) {

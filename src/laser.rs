@@ -1,8 +1,10 @@
 use macroquad::prelude::*;
 use macroquad_test::{
     core::{pool::ObjectPool, timer::Timer},
-    draw_line_w_rot, lerp,
+    draw_line_w_rot,
 };
+
+use crate::teleport::Teleport;
 
 const LASER_THICKNESS: f32 = 2.0;
 const LASER_LENGTH: f32 = 6.0;
@@ -21,39 +23,22 @@ pub struct Laser {
     pub lifetime: f32,
 }
 
-impl Laser {
-    fn teleport(&mut self) {
-        let pos = &mut self.position;
-        let (screen_width, screen_height) = (screen_width(), screen_height());
-        let off_screen_left = pos.x < -FRAC_LASER_LENGTH_2;
-        let off_screen_right = pos.x > screen_width + FRAC_LASER_LENGTH_2;
-        let off_screen_up = pos.y < -FRAC_LASER_LENGTH_2;
-        let off_screen_down = pos.y > screen_height + FRAC_LASER_LENGTH_2;
+impl Teleport for Laser {
+    #[inline(always)]
+    fn position(&self) -> Vec2 {
+        self.position
+    }
 
-        if !off_screen_left && !off_screen_right && !off_screen_up && !off_screen_down {
-            return;
-        }
+    #[inline(always)]
+    fn set_position(&mut self, x: f32, y: f32) {
+        self.position = vec2(x, y);
+    }
 
-        let abs_speed_direction = self.speed.normalize_or_zero().abs();
-
-        let lerp_mut = abs_speed_direction.y / 1.0;
-        let pos_y_lerp = || lerp(pos.y, screen_height - pos.y, lerp_mut);
-        if off_screen_left {
-            *pos = vec2(screen_width + FRAC_LASER_LENGTH_2, pos_y_lerp());
-        } else if off_screen_right {
-            *pos = vec2(-FRAC_LASER_LENGTH_2, pos_y_lerp());
-        }
-
-        let lerp_mut = abs_speed_direction.x / 1.0;
-        let pos_x_lerp = || lerp(pos.x, screen_width - pos.x, lerp_mut);
-        if off_screen_up {
-            *pos = vec2(pos_x_lerp(), screen_height + FRAC_LASER_LENGTH_2);
-        } else if off_screen_down {
-            *pos = vec2(pos_x_lerp(), -FRAC_LASER_LENGTH_2);
-        }
+    #[inline(always)]
+    fn speed(&self) -> Vec2 {
+        self.speed
     }
 }
-
 pub struct LaserManager {
     pool: ObjectPool<Laser>,
     fire_timer: Timer,
@@ -85,11 +70,9 @@ impl LaserManager {
                 return;
             }
             laser.lifetime -= dt;
-            // println!("Update");
 
             laser.position += laser.speed * dt;
-
-            laser.teleport();
+            laser.teleport(FRAC_LASER_LENGTH_2);
         });
     }
 
