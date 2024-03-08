@@ -22,7 +22,7 @@ impl<T> ObjectPool<T> {
         let index_cur = self.index_next;
 
         self.index_next += 1;
-        if self.index_next > self.objects.len() - 1 {
+        if self.index_next >= self.objects.len() {
             self.index_next = 0;
         }
 

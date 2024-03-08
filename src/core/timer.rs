@@ -13,9 +13,8 @@ impl Timer {
 
     pub fn update(&mut self, dt: f32) -> bool {
         self.accumulator += dt;
-        let diff = self.accumulator - self.rate;
-        if diff > 0.0 {
-            self.accumulator = diff;
+        if self.accumulator > self.rate {
+            self.accumulator -= self.rate;
             return true;
         }
         false
