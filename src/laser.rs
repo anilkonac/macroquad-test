@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 use macroquad_test::{
     core::{pool::ObjectPool, timer::Timer},
-    draw_line_w_rot,
+    draw_line_w_rot, lerp,
 };
 
 const LASER_THICKNESS: f32 = 2.0;
@@ -19,6 +19,39 @@ pub struct Laser {
     pub speed: Vec2,
     pub direction: Vec2,
     pub lifetime: f32,
+}
+
+impl Laser {
+    fn teleport(&mut self) {
+        let pos = &mut self.position;
+        let (screen_width, screen_height) = (screen_width(), screen_height());
+        let off_screen_left = pos.x < -FRAC_LASER_LENGTH_2;
+        let off_screen_right = pos.x > screen_width + FRAC_LASER_LENGTH_2;
+        let off_screen_up = pos.y < -FRAC_LASER_LENGTH_2;
+        let off_screen_down = pos.y > screen_height + FRAC_LASER_LENGTH_2;
+
+        if !off_screen_left && !off_screen_right && !off_screen_up && !off_screen_down {
+            return;
+        }
+
+        let abs_speed_direction = self.speed.normalize_or_zero().abs();
+
+        let lerp_mut = abs_speed_direction.y / 1.0;
+        let pos_y_lerp = || lerp(pos.y, screen_height - pos.y, lerp_mut);
+        if off_screen_left {
+            *pos = vec2(screen_width + FRAC_LASER_LENGTH_2, pos_y_lerp());
+        } else if off_screen_right {
+            *pos = vec2(-FRAC_LASER_LENGTH_2, pos_y_lerp());
+        }
+
+        let lerp_mut = abs_speed_direction.x / 1.0;
+        let pos_x_lerp = || lerp(pos.x, screen_width - pos.x, lerp_mut);
+        if off_screen_up {
+            *pos = vec2(pos_x_lerp(), screen_height + FRAC_LASER_LENGTH_2);
+        } else if off_screen_down {
+            *pos = vec2(pos_x_lerp(), -FRAC_LASER_LENGTH_2);
+        }
+    }
 }
 
 pub struct LaserManager {
@@ -47,9 +80,6 @@ impl LaserManager {
     }
 
     pub fn update(&mut self, dt: f32) {
-        let sc_width = screen_width();
-        let sc_height = screen_height();
-
         self.pool.for_each_mut(|laser| {
             if laser.lifetime <= 0.0 {
                 return;
@@ -57,20 +87,9 @@ impl LaserManager {
             laser.lifetime -= dt;
             // println!("Update");
 
-            let pos = &mut laser.position;
-            *pos += laser.speed * dt;
+            laser.position += laser.speed * dt;
 
-            if pos.x < -FRAC_LASER_LENGTH_2 {
-                pos.x = sc_width + FRAC_LASER_LENGTH_2;
-            } else if pos.x > sc_width + FRAC_LASER_LENGTH_2 {
-                pos.x = -FRAC_LASER_LENGTH_2;
-            }
-
-            if pos.y < -FRAC_LASER_LENGTH_2 {
-                pos.y = sc_height + FRAC_LASER_LENGTH_2;
-            } else if pos.y > sc_height + FRAC_LASER_LENGTH_2 {
-                pos.y = -FRAC_LASER_LENGTH_2;
-            }
+            laser.teleport();
         });
     }
 

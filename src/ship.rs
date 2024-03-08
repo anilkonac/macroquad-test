@@ -76,9 +76,9 @@ impl Ship {
             return;
         }
 
-        let abs_normalized_speed = self.speed.normalize().abs();
+        let abs_speed_direction = self.speed.normalize_or_zero().abs();
 
-        let lerp_const = abs_normalized_speed.y / 1.0;
+        let lerp_const = abs_speed_direction.y / 1.0;
         let pos_y_lerp = || lerp(pos.y, screen_height - pos.y, lerp_const);
         if off_screen_left {
             *pos = vec2(screen_width + SHIP_RADIUS, pos_y_lerp());
@@ -86,7 +86,7 @@ impl Ship {
             *pos = vec2(-SHIP_RADIUS, pos_y_lerp());
         }
 
-        let lerp_const = abs_normalized_speed.x / 1.0;
+        let lerp_const = abs_speed_direction.x / 1.0;
         let pos_x_lerp = || lerp(pos.x, screen_width - pos.x, lerp_const);
         if off_screen_up {
             *pos = vec2(pos_x_lerp(), screen_height + SHIP_RADIUS);
