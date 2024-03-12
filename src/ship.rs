@@ -50,18 +50,12 @@ impl Default for Ship {
 
 impl Teleport for Ship {
     #[inline(always)]
-    fn position(&self) -> Vec2 {
-        self.pos
+    fn speed_dir(&self) -> Vec2 {
+        self.speed.normalize_or_zero()
     }
-
     #[inline(always)]
-    fn set_position(&mut self, x: f32, y: f32) {
-        self.pos = vec2(x, y);
-    }
-
-    #[inline(always)]
-    fn speed(&self) -> Vec2 {
-        self.speed
+    fn position_mut(&mut self) -> &mut Vec2 {
+        &mut self.pos
     }
 }
 
@@ -80,7 +74,7 @@ impl Ship {
         self.rotation_rad += self.speed_angular_rad * dt;
         self.rotation_rad = normalize_rad(self.rotation_rad);
 
-        self.teleport(SHIP_RADIUS);
+        self.teleport(vec2(screen_width(), screen_height()), SHIP_RADIUS);
     }
 
     pub fn draw(&self, input_dir: Vec2) {

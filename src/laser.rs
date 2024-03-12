@@ -25,18 +25,12 @@ pub struct Laser {
 
 impl Teleport for Laser {
     #[inline(always)]
-    fn position(&self) -> Vec2 {
-        self.position
+    fn speed_dir(&self) -> Vec2 {
+        self.direction
     }
-
     #[inline(always)]
-    fn set_position(&mut self, x: f32, y: f32) {
-        self.position = vec2(x, y);
-    }
-
-    #[inline(always)]
-    fn speed(&self) -> Vec2 {
-        self.speed
+    fn position_mut(&mut self) -> &mut Vec2 {
+        &mut self.position
     }
 }
 pub struct LaserManager {
@@ -65,6 +59,7 @@ impl LaserManager {
     }
 
     pub fn update(&mut self, dt: f32) {
+        let screen_size = vec2(screen_width(), screen_height());
         self.pool.for_each_mut(|laser| {
             if laser.lifetime <= 0.0 {
                 return;
@@ -72,7 +67,7 @@ impl LaserManager {
             laser.lifetime -= dt;
 
             laser.position += laser.speed * dt;
-            laser.teleport(FRAC_LASER_LENGTH_2);
+            laser.teleport(screen_size, FRAC_LASER_LENGTH_2);
         });
     }
 
