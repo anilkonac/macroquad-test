@@ -3,14 +3,16 @@ use macroquad::prelude::*;
 mod input;
 mod laser;
 mod ship;
+mod teleport;
 
 // Main constants that affect gameplay
-const SHIP_ACCELERATION: f32 = 100.0;
+const SHIP_ACCELERATION: f32 = 200.0;
 const SHIP_ACCELERATION_ANGULAR: f32 = 100.0;
-const SHIP_VELOCITY_MAX: f32 = 300.0;
+const SHIP_VELOCITY_MAX: f32 = 500.0;
 const SHIP_VELOCITY_ANGULAR_MAX: f32 = 200.0;
-const LASER_VELOCITY: f32 = 380.0;
+const LASER_VELOCITY: f32 = 500.0;
 const LASER_FIRE_PERIOD: f32 = 0.3;
+const LASER_LIFETIME: f32 = 3.0;
 
 #[macroquad::main(window_conf)]
 async fn main() {
@@ -36,7 +38,6 @@ async fn main() {
 
         // Draw debug texts
         // draw_text_speed(ship.speed);
-        // draw_text_rotation(ship.rotation_rad.to_degrees());
         // draw_text_rotation(ship.rotation_rad);
         draw_text_fps(dt);
 

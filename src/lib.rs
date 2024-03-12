@@ -33,3 +33,8 @@ pub fn normalize_rad(rad_val: f32) -> f32 {
     }
     rad_val
 }
+
+#[inline(always)]
+pub fn lerp(a: f32, b: f32, alpha: f32) -> f32 {
+    a * (1. - alpha) + b * alpha
+}

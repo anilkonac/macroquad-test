@@ -2,8 +2,9 @@ use macroquad::prelude::*;
 use macroquad_test::{draw_line_w_rot, draw_triangle, normalize_rad, DEG_TO_RAD, SQRT_3};
 use std::f32::consts::FRAC_PI_2;
 
-pub const SHIP_RADIUS: f32 = 20.0;
+use crate::teleport::Teleport;
 
+pub const SHIP_RADIUS: f32 = 20.0;
 const FRAC_RADIUS_4: f32 = SHIP_RADIUS / 4.0;
 const SRADIUS_COS30: f32 = SHIP_RADIUS * 0.86602540378f32;
 const SRADIUS_SIN30: f32 = SHIP_RADIUS * 0.5;
@@ -47,6 +48,17 @@ impl Default for Ship {
     }
 }
 
+impl Teleport for Ship {
+    #[inline(always)]
+    fn speed_dir(&self) -> Vec2 {
+        self.speed.normalize_or_zero()
+    }
+    #[inline(always)]
+    fn position_mut(&mut self) -> &mut Vec2 {
+        &mut self.pos
+    }
+}
+
 impl Ship {
     pub fn update(&mut self, input_direction: Vec2, dt: f32) {
         if input_direction != Vec2::ZERO {
@@ -61,6 +73,8 @@ impl Ship {
         self.pos += self.speed * dt;
         self.rotation_rad += self.speed_angular_rad * dt;
         self.rotation_rad = normalize_rad(self.rotation_rad);
+
+        self.teleport(vec2(screen_width(), screen_height()), SHIP_RADIUS);
     }
 
     pub fn draw(&self, input_dir: Vec2) {

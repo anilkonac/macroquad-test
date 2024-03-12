@@ -4,11 +4,14 @@ use macroquad_test::{
     draw_line_w_rot,
 };
 
+use crate::teleport::Teleport;
+
 const LASER_THICKNESS: f32 = 2.0;
 const LASER_LENGTH: f32 = 6.0;
+const FRAC_LASER_LENGTH_2: f32 = LASER_LENGTH / 2.0;
 
-const V_LASER_LEFT: Vec2 = vec2(-LASER_LENGTH / 2.0, 0.0);
-const V_LASER_RIGHT: Vec2 = vec2(LASER_LENGTH / 2.0, 0.0);
+const V_LASER_LEFT: Vec2 = vec2(-FRAC_LASER_LENGTH_2, 0.0);
+const V_LASER_RIGHT: Vec2 = vec2(FRAC_LASER_LENGTH_2, 0.0);
 
 const COLOR_LASER: Color = RED;
 
@@ -17,8 +20,19 @@ pub struct Laser {
     pub position: Vec2,
     pub speed: Vec2,
     pub direction: Vec2,
+    pub lifetime: f32,
 }
 
+impl Teleport for Laser {
+    #[inline(always)]
+    fn speed_dir(&self) -> Vec2 {
+        self.direction
+    }
+    #[inline(always)]
+    fn position_mut(&mut self) -> &mut Vec2 {
+        &mut self.position
+    }
+}
 pub struct LaserManager {
     pool: ObjectPool<Laser>,
     fire_timer: Timer,
@@ -45,13 +59,23 @@ impl LaserManager {
     }
 
     pub fn update(&mut self, dt: f32) {
+        let screen_size = vec2(screen_width(), screen_height());
         self.pool.for_each_mut(|laser| {
+            if laser.lifetime <= 0.0 {
+                return;
+            }
+            laser.lifetime -= dt;
+
             laser.position += laser.speed * dt;
+            laser.teleport(screen_size, FRAC_LASER_LENGTH_2);
         });
     }
 
     pub fn draw(&self) {
         self.pool.for_each(|laser| {
+            if laser.lifetime <= 0.0 {
+                return;
+            }
             draw_line_w_rot(
                 laser.direction,
                 laser.position,
