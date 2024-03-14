@@ -53,6 +53,7 @@ impl Teleport for Ship {
     fn speed_dir(&self) -> Vec2 {
         self.speed.normalize_or_zero()
     }
+
     #[inline(always)]
     fn position_mut(&mut self) -> &mut Vec2 {
         &mut self.pos

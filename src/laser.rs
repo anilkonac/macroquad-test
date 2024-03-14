@@ -28,11 +28,13 @@ impl Teleport for Laser {
     fn speed_dir(&self) -> Vec2 {
         self.direction
     }
+
     #[inline(always)]
     fn position_mut(&mut self) -> &mut Vec2 {
         &mut self.position
     }
 }
+
 pub struct LaserManager {
     pool: ObjectPool<Laser>,
     fire_timer: Timer,
@@ -60,6 +62,7 @@ impl LaserManager {
 
     pub fn update(&mut self, dt: f32) {
         let screen_size = vec2(screen_width(), screen_height());
+
         self.pool.for_each_mut(|laser| {
             if laser.lifetime <= 0.0 {
                 return;
