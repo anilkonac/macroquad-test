@@ -12,8 +12,11 @@ const SRADIUS_SIN30: f32 = SHIP_RADIUS * 0.5;
 const V_SHIP_TOP: Vec2 = vec2(0.0, -SHIP_RADIUS);
 const V_SHIP_LEFT: Vec2 = vec2(-SRADIUS_COS30, SRADIUS_SIN30);
 const V_SHIP_RIGHT: Vec2 = vec2(SRADIUS_COS30, SRADIUS_SIN30);
-const V_FIRE_TOP: Vec2 = vec2(0.0, SRADIUS_SIN30);
-const V_FIRE_BTM: Vec2 = vec2(0.0, SRADIUS_SIN30 + 9.0);
+const V_FIRE_TOP: Vec2 = vec2(0.0, 0.0);
+const V_FIRE_BTM: Vec2 = vec2(0.0, 0.0 + 9.0);
+const V_FIRE_LEFT: Vec2 = vec2(-SRADIUS_COS30 / 2.0, 0.0);
+const V_FIRE_RIGHT: Vec2 = vec2(SRADIUS_COS30 / 2.0, 0.0);
+const V_FIRE_BOTTOM: Vec2 = vec2(0.0, 1.5 * SRADIUS_SIN30);
 
 const V_FIRE_R_R_1: Vec2 = vec2(FRAC_RADIUS_4 * SQRT_3, -FRAC_RADIUS_4);
 const V_FIRE_R_R_2: Vec2 = vec2(V_FIRE_R_R_1.x, V_FIRE_R_R_1.y - 6.0);
@@ -84,7 +87,11 @@ impl Ship {
         // Draw the thrust of the engine
         if input_dir.x > 0.0 {
             // Forward thrust
-            draw_line_w_rot(rot_vec, self.pos, V_FIRE_TOP, V_FIRE_BTM, 6.0, CLR_THR);
+            // draw_line_w_rot(rot_vec, self.pos, V_FIRE_TOP, V_FIRE_BTM, 6.0, CLR_THR);
+            let v1 = rot_vec.rotate(V_FIRE_LEFT) + self.pos;
+            let v2 = rot_vec.rotate(V_FIRE_BOTTOM) + self.pos;
+            let v3 = rot_vec.rotate(V_FIRE_RIGHT) + self.pos;
+            macroquad::shapes::draw_triangle(v1, v2, v3, CLR_THR);
         } else if input_dir.x < 0.0 {
             // Backward thrust
             draw_line_w_rot(rot_vec, self.pos, V_FIRE_R_R_1, V_FIRE_R_R_2, 3.0, CLR_THR);
@@ -105,10 +112,32 @@ impl Ship {
         let v1 = rot_vec.rotate(V_SHIP_TOP) + self.pos;
         let v2 = rot_vec.rotate(V_SHIP_LEFT) + self.pos;
         let v3 = rot_vec.rotate(V_SHIP_RIGHT) + self.pos;
+        // draw_triangle(&[
+        //     Vertex::new(v1.x, v1.y, 0., 0., 0., SHIP_VERTEX_COLORS[0]),
+        //     Vertex::new(v2.x, v2.y, 0., 0., 0., SHIP_VERTEX_COLORS[1]),
+        //     Vertex::new(v3.x, v3.y, 0., 0., 0., SHIP_VERTEX_COLORS[2]),
+        // ]);
+
+        // macroquad::shapes::draw_triangle(v2, v3, self.pos, BLACK);
+
+        // draw_triangle(&[
+        //     Vertex::new(v1.x, v1.y, 0., 0., 0., SHIP_VERTEX_COLORS[0]),
+        //     Vertex::new(v2.x, v2.y, 0., 0., 0., SHIP_VERTEX_COLORS[1]),
+        //     Vertex::new(self.pos.x, self.pos.y, 0., 0., 0., SHIP_VERTEX_COLORS[2]),
+        // ])
+
+        // macroquad::shapes::draw_triangle(v1, v2, self.pos, WHITE);
+        // macroquad::shapes::draw_triangle(v1, self.pos, v3, WHITE);
+
         draw_triangle(&[
-            Vertex::new(v1.x, v1.y, 0., 0., 0., SHIP_VERTEX_COLORS[0]),
-            Vertex::new(v2.x, v2.y, 0., 0., 0., SHIP_VERTEX_COLORS[1]),
-            Vertex::new(v3.x, v3.y, 0., 0., 0., SHIP_VERTEX_COLORS[2]),
+            Vertex::new(v1.x, v1.y, 0., 0., 0., PURPLE),
+            Vertex::new(v2.x, v2.y, 0., 0., 0., WHITE),
+            Vertex::new(self.pos.x, self.pos.y, 0., 0., 0., WHITE),
+        ]);
+        draw_triangle(&[
+            Vertex::new(v1.x, v1.y, 0., 0., 0., PURPLE),
+            Vertex::new(self.pos.x, self.pos.y, 0., 0., 0., WHITE),
+            Vertex::new(v3.x, v3.y, 0., 0., 0., WHITE),
         ]);
     }
 }
