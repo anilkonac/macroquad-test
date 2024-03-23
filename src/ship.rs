@@ -1,5 +1,7 @@
 use macroquad::prelude::*;
-use macroquad_test::{draw_line_w_rot, draw_triangle, normalize_rad, DEG_TO_RAD, SQRT_3};
+use macroquad_test::{
+    core::sat::BoundingPolygon, draw_line_w_rot, draw_triangle, normalize_rad, DEG_TO_RAD, SQRT_3,
+};
 use std::f32::consts::FRAC_PI_2;
 
 use crate::teleport::Teleport;
@@ -31,6 +33,7 @@ const SHIP_VERTEX_COLORS: [Color; 3] = [PURPLE, WHITE, WHITE];
 const CLR_THR: Color = BLUE;
 
 pub struct Ship {
+    bounding_poly: BoundingPolygon,
     pub pos: Vec2,
     pub speed: Vec2,
     pub rotation_rad: f32,
@@ -40,6 +43,7 @@ pub struct Ship {
 impl Default for Ship {
     fn default() -> Self {
         Self {
+            bounding_poly: BoundingPolygon::default(),
             pos: vec2(screen_width() / 2.0, screen_height() / 2.0),
             speed: Vec2::ZERO,
             rotation_rad: 0.0,
@@ -67,13 +71,21 @@ impl Ship {
             self.speed_angular_rad = self
                 .speed_angular_rad
                 .clamp(-MAX_VELOCITY_ANGULAR_RAD, MAX_VELOCITY_ANGULAR_RAD);
-            let direction = Vec2::from_angle(-FRAC_PI_2 + self.rotation_rad);
-            self.speed += direction * input_direction.x * crate::SHIP_ACCELERATION * dt;
+            let orientation = Vec2::from_angle(-FRAC_PI_2 + self.rotation_rad);
+            self.speed += orientation * input_direction.x * crate::SHIP_ACCELERATION * dt;
             self.speed = self.speed.clamp_length_max(crate::SHIP_VELOCITY_MAX);
         }
         self.pos += self.speed * dt;
         self.rotation_rad += self.speed_angular_rad * dt;
         self.rotation_rad = normalize_rad(self.rotation_rad);
+
+        let rot_vec = Vec2::from_angle(self.rotation_rad);
+        let corners = vec![
+            rot_vec.rotate(V_SHIP_TOP) + self.pos,
+            rot_vec.rotate(V_SHIP_LEFT) + self.pos,
+            rot_vec.rotate(V_SHIP_RIGHT) + self.pos,
+        ];
+        self.bounding_poly.update(&corners);
 
         self.teleport(vec2(screen_width(), screen_height()), SHIP_RADIUS);
     }
@@ -102,13 +114,11 @@ impl Ship {
         }
 
         // Draw the ship
-        let v1 = rot_vec.rotate(V_SHIP_TOP) + self.pos;
-        let v2 = rot_vec.rotate(V_SHIP_LEFT) + self.pos;
-        let v3 = rot_vec.rotate(V_SHIP_RIGHT) + self.pos;
+        let verts = &self.bounding_poly.corners;
         draw_triangle(&[
-            Vertex::new(v1.x, v1.y, 0., 0., 0., SHIP_VERTEX_COLORS[0]),
-            Vertex::new(v2.x, v2.y, 0., 0., 0., SHIP_VERTEX_COLORS[1]),
-            Vertex::new(v3.x, v3.y, 0., 0., 0., SHIP_VERTEX_COLORS[2]),
+            Vertex::new(verts[0].x, verts[0].y, 0., 0., 0., SHIP_VERTEX_COLORS[0]),
+            Vertex::new(verts[1].x, verts[1].y, 0., 0., 0., SHIP_VERTEX_COLORS[1]),
+            Vertex::new(verts[2].x, verts[2].y, 0., 0., 0., SHIP_VERTEX_COLORS[2]),
         ]);
     }
 }
