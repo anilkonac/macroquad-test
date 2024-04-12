@@ -17,7 +17,7 @@ const LASER_LIFETIME: f32 = 3.0;
 #[macroquad::main(window_conf)]
 async fn main() {
     let mut ship = ship::Ship::default();
-    let mut laser_manager = laser::LaserManager::new(20, LASER_FIRE_PERIOD);
+    let mut laser_manager = laser::LaserManager::new(16, LASER_FIRE_PERIOD);
     let mut input_direction = Vec2::ZERO;
 
     loop {
