@@ -3,7 +3,7 @@ use macroquad::prelude::*;
 use crate::{
     laser::LaserManager,
     ship::{Ship, SHIP_RADIUS},
-    LASER_LIFETIME,
+    LASER_LIFETIME, LASER_VELOCITY,
 };
 
 const LASER_FIRE_KEY: KeyCode = KeyCode::Space;
@@ -13,7 +13,7 @@ pub fn handle_input_fire(ship: &Ship, laser_manager: &mut LaserManager, dt: f32)
         if let Some(fired_laser) = laser_manager.fire(dt) {
             fired_laser.direction = ship.rot_vec;
             fired_laser.position = ship.pos + ship.rot_vec.rotate(vec2(SHIP_RADIUS, 0.0));
-            fired_laser.speed = ship.speed + ship.rot_vec * crate::LASER_VELOCITY;
+            fired_laser.speed = ship.speed + ship.rot_vec * LASER_VELOCITY;
             fired_laser.lifetime = LASER_LIFETIME;
         }
     } else if is_key_released(LASER_FIRE_KEY) {

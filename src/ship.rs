@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 use macroquad_test::{draw_line_w_rot, draw_triangle, normalize_rad, DEG_TO_RAD, SQRT_3};
 
-use crate::teleport::Teleport;
+use crate::{teleport::Teleport, FrameStatus, SHIP_ACCELERATION, SHIP_VELOCITY_MAX};
 
 pub const SHIP_RADIUS: f32 = 20.0;
 const FRAC_RADIUS_4: f32 = SHIP_RADIUS / 4.0;
@@ -62,22 +62,21 @@ impl Teleport for Ship {
 }
 
 impl Ship {
-    pub fn update(&mut self, input_direction: Vec2, dt: f32) {
-        self.pos += self.speed * dt;
-        self.rotation_rad += self.speed_angular_rad * dt;
+    pub fn update(&mut self, input_direction: Vec2, frame: &FrameStatus) {
+        self.pos += self.speed * frame.dt;
+        self.rotation_rad += self.speed_angular_rad * frame.dt;
         self.rotation_rad = normalize_rad(self.rotation_rad);
         self.rot_vec = Vec2::from_angle(self.rotation_rad);
+        self.teleport(frame.screen_size, SHIP_RADIUS);
 
         if input_direction != Vec2::ZERO {
-            self.speed_angular_rad += input_direction.y * ACCELERATION_ANGULAR_RAD * dt;
+            self.speed_angular_rad += input_direction.y * ACCELERATION_ANGULAR_RAD * frame.dt;
             self.speed_angular_rad = self
                 .speed_angular_rad
                 .clamp(-MAX_VELOCITY_ANGULAR_RAD, MAX_VELOCITY_ANGULAR_RAD);
-            self.speed += self.rot_vec * input_direction.x * crate::SHIP_ACCELERATION * dt;
-            self.speed = self.speed.clamp_length_max(crate::SHIP_VELOCITY_MAX);
+            self.speed += self.rot_vec * input_direction.x * SHIP_ACCELERATION * frame.dt;
+            self.speed = self.speed.clamp_length_max(SHIP_VELOCITY_MAX);
         }
-
-        self.teleport(vec2(screen_width(), screen_height()), SHIP_RADIUS);
     }
 
     pub fn draw(&self, input_dir: Vec2) {

@@ -4,7 +4,7 @@ use macroquad_test::{
     draw_line_w_rot,
 };
 
-use crate::teleport::Teleport;
+use crate::{teleport::Teleport, FrameStatus};
 
 const LASER_THICKNESS: f32 = 2.0;
 const LASER_LENGTH: f32 = 6.0;
@@ -60,17 +60,15 @@ impl LaserManager {
         self.fire_timer.reset();
     }
 
-    pub fn update(&mut self, dt: f32) {
-        let screen_size = vec2(screen_width(), screen_height());
-
+    pub fn update(&mut self, frame: &FrameStatus) {
         self.pool.for_each_mut(|laser| {
             if laser.lifetime <= 0.0 {
                 return;
             }
-            laser.lifetime -= dt;
+            laser.lifetime -= frame.dt;
 
-            laser.position += laser.speed * dt;
-            laser.teleport(screen_size, FRAC_LASER_LENGTH_2);
+            laser.position += laser.speed * frame.dt;
+            laser.teleport(frame.screen_size, FRAC_LASER_LENGTH_2);
         });
     }
 
